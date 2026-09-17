@@ -20,7 +20,9 @@ import {
   BellOff,
   Send,
   Check,
-  DownloadCloud
+  DownloadCloud,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { HEATMAP_THEMES } from '../../utils/theme';
 import type { HeatmapTheme, ThemeMode, TaskCategory } from '../../types';
@@ -183,13 +185,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewTaskModal }) => {
             className="flex items-center gap-2.5 cursor-pointer select-none group shrink-0"
             onClick={() => setActiveView('dashboard')}
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 p-1 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-[#161b22] border border-slate-300 dark:border-[#30363d] p-1 flex items-center justify-center shadow-md group-hover:scale-105 group-hover:border-teal-500/50 dark:group-hover:border-[#58a6ff]/50 transition-all">
               <img src="/favicon.svg" className="w-full h-full object-contain" alt="Chronos Logo" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-slate-900 dark:text-slate-100 tracking-tight">Chronos</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-100 dark:bg-slate-800/80 text-emerald-600 dark:text-emerald-400 rounded-md border border-slate-200 dark:border-slate-700/60 font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="font-wordmark font-extrabold text-base text-slate-900 dark:text-[#f0f6fc] tracking-tight group-hover:text-teal-600 dark:group-hover:text-[#58a6ff] transition-colors">
+                  Chronos
+                </span>
+                <span className="font-mono-tech text-[10px] px-1.5 py-0.5 bg-teal-500/10 dark:bg-[#1f6feb]/20 text-teal-700 dark:text-[#58a6ff] rounded-md border border-teal-500/30 dark:border-[#1f6feb]/40 font-bold tracking-wider uppercase">
                   Tracker
                 </span>
               </div>
@@ -555,6 +559,43 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewTaskModal }) => {
                           notificationSettings: {
                             ...notifSettings,
                             enabled: e.target.checked,
+                          },
+                        });
+                      }}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-slate-300 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-teal-500"></div>
+                  </label>
+                </div>
+
+                {/* Audible Chime Sound Toggle */}
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {notifSettings.soundEnabled !== false ? (
+                      <Volume2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                    ) : (
+                      <VolumeX className="w-5 h-5 text-slate-400 dark:text-slate-500" />
+                    )}
+                    <div>
+                      <span className="text-xs font-bold text-slate-900 dark:text-slate-200 block flex items-center gap-1.5">
+                        <span>Audible Notification Chime</span>
+                        <span className="font-mono-tech text-[9px] px-1.5 py-0.2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded border border-slate-300 dark:border-slate-700">notification.mp3</span>
+                      </span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Plays audio sound on reminders & test notifications
+                      </span>
+                    </div>
+                  </div>
+
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={notifSettings.soundEnabled !== false}
+                      onChange={e => {
+                        updateSettings({
+                          notificationSettings: {
+                            ...notifSettings,
+                            soundEnabled: e.target.checked,
                           },
                         });
                       }}

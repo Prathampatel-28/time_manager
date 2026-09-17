@@ -142,6 +142,7 @@ export interface StreakStats {
 
 export interface NotificationSettings {
   enabled: boolean;
+  soundEnabled?: boolean; // Audible notification chime (notification.mp3)
   permissionRequested: boolean;
   defaultOffsetMinutes: number; // default 10
   muteCollegePeriods: boolean;

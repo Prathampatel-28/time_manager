@@ -264,3 +264,96 @@ describe('College Timetable Exceptions', () => {
     expect(result.periods[0].id).toBe('p2');
   });
 });
+
+describe('Weekly & Important Task Recurrence', () => {
+  const weeklyImportantTask: Task = {
+    id: 'weekly-important-task',
+    title: 'Weekly Systems Review',
+    category: 'Work',
+    color: '#f59e0b',
+    isHighlighted: true,
+    recurrence: {
+      type: 'weekly_days',
+      daysOfWeek: [1, 3], // Mon, Wed
+      startDate: '2026-09-01',
+    },
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  };
+
+  const dailyImportantTask: Task = {
+    id: 'daily-important-task',
+    title: 'Daily High Impact Target',
+    category: 'Personal',
+    color: '#ef4444',
+    isHighlighted: true,
+    recurrence: {
+      type: 'daily',
+      startDate: '2026-09-01',
+    },
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  };
+
+  const customDatesImportantTask: Task = {
+    id: 'custom-important-task',
+    title: 'Midterm Milestone',
+    category: 'Study',
+    color: '#8b5cf6',
+    isHighlighted: true,
+    recurrence: {
+      type: 'monthly_dates',
+      daysOfMonth: [5, 20],
+      startDate: '2026-09-01',
+    },
+    createdAt: '2026-09-01T00:00:00.000Z',
+    updatedAt: '2026-09-01T00:00:00.000Z',
+  };
+
+  it('should correctly schedule Weekly Important task on every scheduled date', () => {
+    // 2026-09-14 is Monday
+    expect(isTaskScheduledForDate(weeklyImportantTask, '2026-09-14')).toBe(true);
+    // 2026-09-16 is Wednesday
+    expect(isTaskScheduledForDate(weeklyImportantTask, '2026-09-16')).toBe(true);
+    // 2026-09-21 is Monday (second week occurrence)
+    expect(isTaskScheduledForDate(weeklyImportantTask, '2026-09-21')).toBe(true);
+    // 2026-09-15 is Tuesday -> false
+    expect(isTaskScheduledForDate(weeklyImportantTask, '2026-09-15')).toBe(false);
+  });
+
+  it('should set hasHighlighted = true in DayActivity for Daily, Weekly, and Custom Dates important tasks', () => {
+    const occMap = new Map<string, Occurrence>();
+
+    // Monday 2026-09-14 has Weekly important task
+    const monAct = computeDayActivity('2026-09-14', [weeklyImportantTask], occMap);
+    expect(monAct.hasHighlighted).toBe(true);
+    expect(monAct.totalScheduled).toBe(1);
+
+    // Tuesday 2026-09-15 has Daily important task
+    const tueAct = computeDayActivity('2026-09-15', [dailyImportantTask], occMap);
+    expect(tueAct.hasHighlighted).toBe(true);
+    expect(tueAct.totalScheduled).toBe(1);
+
+    // 2026-09-20 has Custom Dates important task
+    const customAct = computeDayActivity('2026-09-20', [customDatesImportantTask], occMap);
+    expect(customAct.hasHighlighted).toBe(true);
+    expect(customAct.totalScheduled).toBe(1);
+  });
+
+  it('should handle recurrence type "weekly" and empty daysOfWeek fallback', () => {
+    const legacyWeeklyTask: Task = {
+      ...weeklyImportantTask,
+      recurrence: {
+        type: 'weekly' as any,
+        startDate: '2026-09-03', // Thursday
+      },
+    };
+
+    // Thursday 2026-09-03 -> true (fallback to weekday of startDate)
+    expect(isTaskScheduledForDate(legacyWeeklyTask, '2026-09-03')).toBe(true);
+    // Thursday 2026-09-10 -> true
+    expect(isTaskScheduledForDate(legacyWeeklyTask, '2026-09-10')).toBe(true);
+    // Friday 2026-09-04 -> false
+    expect(isTaskScheduledForDate(legacyWeeklyTask, '2026-09-04')).toBe(false);
+  });
+});

@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { 
   Star, 
   Calendar, 
   ChevronRight 
 } from 'lucide-react';
-import { format, differenceInCalendarDays } from 'date-fns';
-import { fromDateString, toDateString } from '../../services/recurrence';
-import type { Task } from '../../types';
+import { format, differenceInCalendarDays, addDays } from 'date-fns';
+import { fromDateString, toDateString, resolveTaskOccurrence } from '../../services/recurrence';
+import type { Task, Occurrence } from '../../types';
 
 interface UpcomingHighlightsProps {
   onDayClick: (dateStr: string) => void;
@@ -17,28 +17,61 @@ interface UpcomingHighlightsProps {
 export const UpcomingHighlights: React.FC<UpcomingHighlightsProps> = ({
   onDayClick,
 }) => {
-  const { tasks } = useApp();
-  const todayStr = toDateString(new Date());
-  const today = fromDateString(todayStr);
+  const { tasks, occurrences } = useApp();
+  const todayStr = useMemo(() => toDateString(new Date()), []);
+  const today = useMemo(() => fromDateString(todayStr), [todayStr]);
+
+  const occurrencesMap = useMemo(() => {
+    const map = new Map<string, Occurrence>();
+    for (const occ of occurrences) {
+      map.set(`${occ.taskId}_${occ.date}`, occ);
+    }
+    return map;
+  }, [occurrences]);
 
   // Find all tasks marked as isHighlighted
-  const highlightedTasks = tasks.filter(t => t.isHighlighted);
+  const highlightedTasks = useMemo(() => tasks.filter(t => t.isHighlighted), [tasks]);
 
-  // Find upcoming occurrences for these highlighted tasks
-  const upcomingList = highlightedTasks.map(task => {
-    // For one-time tasks:
-    const targetDateStr = task.recurrence.targetDate || task.recurrence.startDate;
-    const targetDate = fromDateString(targetDateStr);
-    const daysDiff = differenceInCalendarDays(targetDate, today);
+  // Find upcoming occurrences for all highlighted tasks regardless of recurrence type
+  const upcomingList = useMemo(() => {
+    const result: Array<{
+      task: Task;
+      dateStr: string;
+      daysDiff: number;
+    }> = [];
 
-    return {
-      task,
-      dateStr: targetDateStr,
-      daysDiff,
-    };
-  })
-  .filter(item => item.daysDiff >= -1) // today, future, or yesterday
-  .sort((a, b) => a.daysDiff - b.daysDiff);
+    for (const task of highlightedTasks) {
+      if (task.recurrence.type === 'none') {
+        const targetDateStr = task.recurrence.targetDate || task.recurrence.startDate;
+        const targetDate = fromDateString(targetDateStr);
+        const daysDiff = differenceInCalendarDays(targetDate, today);
+        if (daysDiff >= -1) {
+          result.push({ task, dateStr: targetDateStr, daysDiff });
+        }
+      } else {
+        // For recurring tasks (daily, weekly, monthly, interval), scan upcoming 60 days
+        // to find the next scheduled occurrence on or after yesterday
+        let foundCount = 0;
+        for (let i = -1; i <= 60; i++) {
+          const testDate = addDays(today, i);
+          const testDateStr = toDateString(testDate);
+          
+          const resolved = resolveTaskOccurrence(task, testDateStr, occurrencesMap);
+          if (resolved.isScheduled && resolved.status !== 'removed') {
+            result.push({
+              task,
+              dateStr: testDateStr,
+              daysDiff: i,
+            });
+            foundCount++;
+            if (foundCount >= 1) break; // Collect next upcoming occurrence for this task
+          }
+        }
+      }
+    }
+
+    return result.sort((a, b) => a.daysDiff - b.daysDiff);
+  }, [highlightedTasks, today, occurrencesMap]);
 
   if (upcomingList.length === 0) {
     return (

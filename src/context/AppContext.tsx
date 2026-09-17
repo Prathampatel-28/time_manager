@@ -163,13 +163,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return map;
   }, [occurrences]);
 
-  // Date range for history & upcoming: past 365 days + next 30 days
+  // Date range for history & upcoming: past 365 days + next 365 days
   const todayStr = useMemo(() => toDateString(new Date()), []);
   
   const activities = useMemo(() => {
     const now = new Date();
     const startDate = subDays(now, 365);
-    const endDate = addDays(now, 30);
+    const endDate = addDays(now, 365);
     const days = eachDayOfInterval({ start: startDate, end: endDate });
 
     // Filter tasks based on active heatmap filter
@@ -352,8 +352,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Action: Trigger Test Notification
   const triggerTestNotification = useCallback(async () => {
-    return await sendTestNotification();
-  }, []);
+    const soundEnabled = settings.notificationSettings?.soundEnabled !== false;
+    return await sendTestNotification(soundEnabled);
+  }, [settings.notificationSettings]);
 
   return (
     <AppContext.Provider

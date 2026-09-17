@@ -59,6 +59,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
 
   const isDone = status === 'done';
   const isSkipped = status === 'skipped';
+  const isHighlighted = occurrence?.isHighlightedOverride ?? task.isHighlighted;
 
   const startTime12h = formatTime12h(task.startTime);
   const endTime12h = formatTime12h(task.endTime);
@@ -105,6 +106,8 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
             ? 'bg-emerald-500/10 border-emerald-500/30'
             : isSkipped
             ? 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-75'
+            : isHighlighted
+            ? 'bg-amber-500/10 border-amber-500/40 shadow-xs'
             : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-teal-500/40'
         }`}
       >
@@ -127,12 +130,17 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
+              {isHighlighted && (
+                <Star className="w-3.5 h-3.5 text-amber-500 dark:text-[#e3b341] fill-amber-500 dark:fill-[#e3b341] shrink-0" />
+              )}
               <span
                 className={`text-xs font-semibold truncate ${
                   isDone
                     ? 'line-through text-slate-400 dark:text-slate-500'
                     : isSkipped
                     ? 'line-through text-slate-400 dark:text-slate-500'
+                    : isHighlighted
+                    ? 'text-amber-900 dark:text-[#f0f6fc] font-bold'
                     : 'text-slate-900 dark:text-slate-100'
                 }`}
               >
@@ -182,7 +190,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
           ? 'bg-emerald-500/10 border-emerald-500/30'
           : isSkipped
           ? 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-80'
-          : task.isHighlighted
+          : isHighlighted
           ? 'bg-amber-500/10 border-amber-500/40 shadow-sm shadow-amber-500/10'
           : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800/80 hover:border-teal-500/40 shadow-sm'
       }`}
@@ -243,7 +251,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
                 </span>
               )}
 
-              {task.isHighlighted && (
+              {isHighlighted && (
                 <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40">
                   <Star className="w-2.5 h-2.5 fill-amber-500 dark:fill-amber-400" /> Important
                 </span>

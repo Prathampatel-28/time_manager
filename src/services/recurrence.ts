@@ -53,8 +53,11 @@ export function isTaskActionableForDate(
  * Checks if a task is scheduled on a specific date according to its recurrence rule
  */
 export function isTaskScheduledForDate(task: Task, dateStr: string): boolean {
+  if (!task || !task.recurrence) return false;
+
   const targetDate = fromDateString(dateStr);
-  const startDate = fromDateString(task.recurrence.startDate);
+  const startDateStr = task.recurrence.startDate || task.recurrence.targetDate || dateStr;
+  const startDate = fromDateString(startDateStr);
 
   // Check bounds
   if (isBefore(targetDate, startDate)) {
@@ -68,7 +71,9 @@ export function isTaskScheduledForDate(task: Task, dateStr: string): boolean {
     }
   }
 
-  switch (task.recurrence.type) {
+  const recType = task.recurrence.type as string;
+
+  switch (recType) {
     case 'none': {
       const oneTimeDate = task.recurrence.targetDate || task.recurrence.startDate;
       return oneTimeDate === dateStr;
@@ -78,9 +83,15 @@ export function isTaskScheduledForDate(task: Task, dateStr: string): boolean {
       return true;
     }
 
+    case 'weekly':
     case 'weekly_days': {
       const dayOfWeek = getDay(targetDate); // 0 = Sun, 1 = Mon, ..., 6 = Sat
-      const days = task.recurrence.daysOfWeek ?? [];
+      const days = task.recurrence.daysOfWeek;
+      if (!days || days.length === 0) {
+        // Fallback: if no specific repeat days selected, default to the weekday of startDate
+        const startDayOfWeek = getDay(startDate);
+        return dayOfWeek === startDayOfWeek;
+      }
       return days.includes(dayOfWeek);
     }
 
@@ -93,8 +104,11 @@ export function isTaskScheduledForDate(task: Task, dateStr: string): boolean {
     case 'monthly_dates': {
       const targetDayOfMonth = getDate(targetDate);
       const maxDayInMonth = getDaysInMonth(targetDate);
-      const days = task.recurrence.daysOfMonth ?? [];
-      if (days.length === 0) return false;
+      const days = task.recurrence.daysOfMonth;
+      if (!days || days.length === 0) {
+        const expectedDay = getDate(startDate);
+        return targetDayOfMonth === expectedDay;
+      }
 
       return days.some(d => {
         if (d === targetDayOfMonth) return true;

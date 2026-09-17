@@ -47,12 +47,68 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 }
 
 /**
+ * Play notification sound using /notification.mp3 with Web Audio API synthesizer fallback
+ */
+export function playNotificationSound(soundEnabled: boolean = true) {
+  if (!soundEnabled) return;
+
+  try {
+    const audio = new Audio('/notification.mp3');
+    audio.volume = 0.8;
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.warn('HTML5 Audio play failed (browser policy or file missing), trying Web Audio fallback:', err);
+        playWebAudioFallbackChime();
+      });
+    }
+  } catch (e) {
+    playWebAudioFallbackChime();
+  }
+}
+
+/**
+ * Fallback synthesizer chime using Web Audio API if HTML5 Audio fails
+ */
+function playWebAudioFallbackChime() {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+
+    const playTone = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + duration);
+    };
+
+    playTone(880, 0, 0.2);   // A5
+    playTone(1320, 0.15, 0.3); // E6
+  } catch (err) {
+    console.warn('Web Audio fallback chime error:', err);
+  }
+}
+
+/**
  * Send a notification via Service Worker or Web Notifications API
  */
 export async function dispatchNotification(
   title: string,
-  options: NotificationOptions & { body?: string; icon?: string; tag?: string } = {}
+  options: NotificationOptions & { body?: string; icon?: string; tag?: string; soundEnabled?: boolean } = {}
 ): Promise<boolean> {
+  if (options.soundEnabled !== false) {
+    playNotificationSound(true);
+  }
+
   if (!('Notification' in window) || Notification.permission !== 'granted') {
     return false;
   }
@@ -117,16 +173,19 @@ export async function dispatchNotification(
 /**
  * Send a test notification immediately to confirm working state
  */
-export async function sendTestNotification(): Promise<boolean> {
+export async function sendTestNotification(soundEnabled: boolean = true): Promise<boolean> {
   const perm = await requestNotificationPermission();
   if (perm !== 'granted') {
     alert('Notification permission is not granted. Please enable notifications in your browser settings.');
     return false;
   }
 
+  playNotificationSound(soundEnabled);
+
   return await dispatchNotification('Chronos Tracker Test Notification 🔔', {
-    body: 'Browser push reminders are active! You will be notified before scheduled tasks and college lectures.',
+    body: 'Browser push reminders and notification chime (notification.mp3) are active!',
     tag: 'test-notification',
+    soundEnabled: false, // Already played audio above
   });
 }
 
