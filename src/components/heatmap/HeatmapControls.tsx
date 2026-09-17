@@ -25,13 +25,13 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
   const categories = Array.from(new Set(tasks.map(t => t.category))).filter(Boolean);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 py-3 px-4 bg-[#161b22] border border-[#30363d] rounded-lg">
+    <div className="flex flex-wrap items-center justify-between gap-3 py-3 px-4 gradient-card border border-slate-300 dark:border-slate-800 rounded-xl shadow-sm">
       {/* Left: Filters */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Filter Type & Entity Dropdown */}
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-[#8b949e]" />
-          <span className="text-xs text-[#8b949e] font-medium hidden sm:inline">View:</span>
+          <Filter className="w-4 h-4 text-slate-500 dark:text-[#8b949e]" />
+          <span className="text-xs text-slate-600 dark:text-[#8b949e] font-medium hidden sm:inline">View:</span>
           
           <select
             value={
@@ -49,7 +49,7 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
                 setHeatmapFilter({ type: 'task', value: val.replace('task:', '') });
               }
             }}
-            className="bg-[#0d1117] text-xs text-[#c9d1d9] border border-[#30363d] rounded px-2.5 py-1.5 focus:outline-none focus:border-[#58a6ff] cursor-pointer"
+            className="bg-white/95 dark:bg-[#0d1117] text-xs text-slate-900 dark:text-[#c9d1d9] border border-slate-300 dark:border-[#30363d] rounded px-2.5 py-1.5 focus:outline-none focus:border-teal-500 cursor-pointer shadow-xs"
           >
             <option value="all">🌟 All Tasks (Aggregate)</option>
             <optgroup label="Categories">
@@ -70,14 +70,14 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
         </div>
 
         {/* Date Range Selector */}
-        <div className="flex items-center gap-1 bg-[#0d1117] border border-[#30363d] rounded p-0.5 text-xs">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#0d1117] border border-slate-300 dark:border-[#30363d] rounded p-0.5 text-xs">
           <button
             type="button"
             onClick={() => setDateRange('3m')}
             className={`px-2.5 py-1 rounded transition-colors ${
               dateRange === '3m'
-                ? 'bg-[#21262d] text-[#f0f6fc] font-semibold'
-                : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                ? 'bg-white dark:bg-[#21262d] text-slate-900 dark:text-[#f0f6fc] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
             }`}
           >
             3 Months
@@ -87,8 +87,8 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
             onClick={() => setDateRange('6m')}
             className={`px-2.5 py-1 rounded transition-colors ${
               dateRange === '6m'
-                ? 'bg-[#21262d] text-[#f0f6fc] font-semibold'
-                : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                ? 'bg-white dark:bg-[#21262d] text-slate-900 dark:text-[#f0f6fc] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
             }`}
           >
             6 Months
@@ -98,8 +98,8 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
             onClick={() => setDateRange('1y')}
             className={`px-2.5 py-1 rounded transition-colors ${
               dateRange === '1y'
-                ? 'bg-[#21262d] text-[#f0f6fc] font-semibold'
-                : 'text-[#8b949e] hover:text-[#c9d1d9]'
+                ? 'bg-white dark:bg-[#21262d] text-slate-900 dark:text-[#f0f6fc] font-bold shadow-xs'
+                : 'text-slate-600 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
             }`}
           >
             1 Year
@@ -109,12 +109,12 @@ export const HeatmapControls: React.FC<HeatmapControlsProps> = ({
 
       {/* Right: Theme Picker */}
       <div className="flex items-center gap-2">
-        <Palette className="w-4 h-4 text-[#8b949e]" />
-        <span className="text-xs text-[#8b949e] font-medium hidden sm:inline">Theme:</span>
+        <Palette className="w-4 h-4 text-slate-500 dark:text-[#8b949e]" />
+        <span className="text-xs text-slate-600 dark:text-[#8b949e] font-medium hidden sm:inline">Theme:</span>
         <select
           value={settings.heatmapTheme}
           onChange={(e) => updateSettings({ heatmapTheme: e.target.value as HeatmapTheme })}
-          className="bg-[#0d1117] text-xs text-[#c9d1d9] border border-[#30363d] rounded px-2.5 py-1.5 focus:outline-none focus:border-[#58a6ff] cursor-pointer"
+          className="bg-white/95 dark:bg-[#0d1117] text-xs text-slate-900 dark:text-[#c9d1d9] border border-slate-300 dark:border-[#30363d] rounded px-2.5 py-1.5 focus:outline-none focus:border-teal-500 cursor-pointer shadow-xs"
         >
           {Object.values(HEATMAP_THEMES).map(theme => (
             <option key={theme.id} value={theme.id}>

@@ -24,6 +24,11 @@ import type {
 import { toDateString, computeDayActivity } from '../services/recurrence';
 import { calculateStreakStats, calculateTaskStreak } from '../services/stats';
 import { subDays, addDays, eachDayOfInterval } from 'date-fns';
+import { 
+  registerServiceWorker, 
+  checkAndTriggerReminders, 
+  sendTestNotification 
+} from '../services/notifications';
 
 interface AppContextType {
   tasks: Task[];
@@ -65,18 +70,38 @@ interface AppContextType {
   saveCollegeException: (exception: CollegeException) => Promise<void>;
   deleteCollegeException: (id: string) => Promise<void>;
   updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
+  triggerTestNotification: () => Promise<boolean>;
   resetToDemoData: () => Promise<void>;
   exportDataJSON: () => Promise<string>;
   importDataJSON: (jsonString: string) => Promise<boolean>;
 }
 
+const getInitialThemeMode = (): UserSettings['theme'] => {
+  try {
+    const saved = localStorage.getItem('chronos_theme_mode');
+    if (saved === 'light' || saved === 'light-gradient') return 'light-gradient';
+    if (saved === 'dark') return 'dark';
+  } catch (e) {}
+  return 'dark';
+};
+
+const initialTheme = getInitialThemeMode();
+
 const defaultSettings: UserSettings = {
   id: 'default',
-  theme: 'dark',
+  theme: initialTheme,
+  themeMode: initialTheme,
   heatmapTheme: 'github-green',
   streakCalculationMode: 'all_completed',
   startOfWeek: 1,
   collegeEnabled: true,
+  notificationSettings: {
+    enabled: true,
+    permissionRequested: false,
+    defaultOffsetMinutes: 10,
+    muteCollegePeriods: false,
+    mutedCategories: [],
+  },
 };
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -91,7 +116,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     value: 'all',
   });
 
-  // Initialize DB with seed on first mount
+  // Initialize DB with seed & Service Worker on mount
   useEffect(() => {
     initializeDatabase().then(() => {
       setIsDbReady(true);
@@ -99,6 +124,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Failed to initialize database', err);
       setIsDbReady(true);
     });
+    registerServiceWorker();
   }, []);
 
   // Live queries from Dexie
@@ -109,16 +135,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const dbSettings = useLiveQuery(() => db.userSettings.get('default'), [], defaultSettings);
   const settings = dbSettings || defaultSettings;
 
-  // Apply theme class to document
+  // Apply theme class strictly to document element and sync localStorage
   useEffect(() => {
-    if (settings.theme === 'light') {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('theme-light');
-    } else {
+    const mode = settings.themeMode || settings.theme;
+    const isLight = mode === 'light' || mode === 'light-gradient';
+    const isDark = !isLight;
+    
+    try {
+      localStorage.setItem('chronos_theme_mode', mode);
+    } catch (e) {}
+
+    if (isDark) {
       document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('theme-light');
+      document.documentElement.classList.remove('theme-light-gradient', 'theme-light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('theme-light-gradient');
     }
-  }, [settings.theme]);
+  }, [settings.themeMode, settings.theme]);
 
   // Fast occurrence map lookup: taskId_YYYY-MM-DD -> Occurrence
   const occurrencesMap = useMemo(() => {
@@ -246,6 +280,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Action: Update Settings
   const updateSettings = useCallback(async (newSettings: Partial<UserSettings>) => {
+    const nextMode = newSettings.themeMode || newSettings.theme;
+    if (nextMode) {
+      try {
+        localStorage.setItem('chronos_theme_mode', nextMode);
+      } catch (e) {}
+    }
     await settingsRepository.update(newSettings);
   }, []);
 
@@ -301,6 +341,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Background notification check timer
+  useEffect(() => {
+    checkAndTriggerReminders(todayActivity, settings.notificationSettings);
+    const interval = setInterval(() => {
+      checkAndTriggerReminders(todayActivity, settings.notificationSettings);
+    }, 25000); // Check every 25 seconds
+    return () => clearInterval(interval);
+  }, [todayActivity, settings.notificationSettings]);
+
+  // Action: Trigger Test Notification
+  const triggerTestNotification = useCallback(async () => {
+    return await sendTestNotification();
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -336,6 +390,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveCollegeException,
         deleteCollegeException,
         updateSettings,
+        triggerTestNotification,
         resetToDemoData,
         exportDataJSON,
         importDataJSON,

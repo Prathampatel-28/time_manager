@@ -47,10 +47,24 @@ export async function initializeDatabase(forceReset: boolean = false): Promise<v
     await db.userSettings.put({
       id: 'default',
       theme: 'dark',
+      themeMode: 'dark',
       heatmapTheme: 'github-green',
       streakCalculationMode: 'all_completed',
       startOfWeek: 1, // Monday
       collegeEnabled: true,
+      timetableConfig: {
+        id: 'tt-default',
+        name: 'College Timetable',
+        type: 'College',
+        enabled: true,
+      },
+      notificationSettings: {
+        enabled: true,
+        permissionRequested: false,
+        defaultOffsetMinutes: 10,
+        muteCollegePeriods: false,
+        mutedCategories: [],
+      },
     });
   }
 

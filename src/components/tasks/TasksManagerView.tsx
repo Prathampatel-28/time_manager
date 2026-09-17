@@ -50,6 +50,10 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         return `Weekly (${(task.recurrence.daysOfWeek || []).map(d => days[d]).join(', ')})`;
       }
+      case 'monthly_dates': {
+        const days = (task.recurrence.daysOfMonth || []).join(', ');
+        return `Monthly (Days ${days || 'none'})`;
+      }
       case 'interval':
         return `Every ${task.recurrence.intervalDays || 1} days`;
       default:
@@ -60,11 +64,11 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm">
+      <div className="gradient-card border border-slate-300 dark:border-[#30363d] rounded-xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold text-[#f0f6fc]">All Tasks & Habits</h1>
-            <p className="text-xs text-[#8b949e] mt-0.5">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-[#f0f6fc]">All Tasks & Habits</h1>
+            <p className="text-xs text-slate-600 dark:text-[#8b949e] mt-0.5">
               Manage your recurring routines, view single-task heatmaps, and customize schedules.
             </p>
           </div>
@@ -79,15 +83,15 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
         </div>
 
         {/* Search & Category Filter Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 pt-4 border-t border-[#30363d]">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 pt-4 border-t border-slate-200 dark:border-[#30363d]">
           <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-[#8b949e] absolute left-3 top-2.5" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-[#8b949e] absolute left-3 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
+              className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-[#30363d] rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-[#c9d1d9] focus:outline-none focus:border-teal-500 dark:focus:border-[#58a6ff]"
             />
           </div>
 
@@ -98,8 +102,8 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
               onClick={() => setSelectedCategory('all')}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${
                 selectedCategory === 'all'
-                  ? 'bg-[#1f6feb] text-white'
-                  : 'bg-[#21262d] text-[#8b949e] hover:text-[#c9d1d9]'
+                  ? 'bg-teal-600 dark:bg-[#1f6feb] text-white'
+                  : 'bg-slate-200 dark:bg-[#21262d] text-slate-700 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
               }`}
             >
               All ({tasks.length})
@@ -111,8 +115,8 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${
                   selectedCategory === cat
-                    ? 'bg-[#1f6feb] text-white'
-                    : 'bg-[#21262d] text-[#8b949e] hover:text-[#c9d1d9]'
+                    ? 'bg-teal-600 dark:bg-[#1f6feb] text-white'
+                    : 'bg-slate-200 dark:bg-[#21262d] text-slate-700 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
                 }`}
               >
                 {cat} ({tasks.filter(t => t.category === cat).length})
@@ -124,8 +128,8 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
 
       {/* Task Cards Grid */}
       {filteredTasks.length === 0 ? (
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-10 text-center text-xs text-[#8b949e] space-y-3">
-          <p className="font-semibold text-sm text-[#f0f6fc]">No tasks found</p>
+        <div className="gradient-card border border-slate-300 dark:border-[#30363d] rounded-xl p-10 text-center text-xs text-slate-500 dark:text-[#8b949e] space-y-3">
+          <p className="font-semibold text-sm text-slate-900 dark:text-[#f0f6fc]">No tasks found</p>
           <p>Try clearing your search or add a new task.</p>
         </div>
       ) : (
@@ -136,7 +140,7 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
             return (
               <div
                 key={task.id}
-                className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 hover:border-[#58a6ff]/50 transition-all flex flex-col justify-between shadow-sm group"
+                className="gradient-card border border-slate-300 dark:border-[#30363d] rounded-xl p-5 hover:border-teal-500/50 dark:hover:border-[#58a6ff]/50 transition-all flex flex-col justify-between shadow-sm group"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-3">
@@ -145,30 +149,30 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
                         className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: task.color }}
                       />
-                      <h3 className="text-sm font-bold text-[#f0f6fc] group-hover:text-[#58a6ff] transition-colors">
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-[#f0f6fc] group-hover:text-teal-600 dark:group-hover:text-[#58a6ff] transition-colors">
                         {task.title}
                       </h3>
 
                       {task.isHighlighted && (
-                        <span className="flex items-center gap-0.5 text-[10px] font-bold text-[#e3b341] bg-[#d29922]/20 px-1.5 py-0.5 rounded border border-[#d29922]/40">
-                          <Star className="w-2.5 h-2.5 fill-[#e3b341]" /> Important
+                        <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-700 dark:text-[#e3b341] bg-amber-500/15 dark:bg-[#d29922]/20 px-1.5 py-0.5 rounded border border-amber-500/30 dark:border-[#d29922]/40">
+                          <Star className="w-2.5 h-2.5 fill-amber-500 dark:fill-[#e3b341]" /> Important
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className="flex items-center gap-1 text-xs font-bold text-[#f0883e] bg-[#f0883e]/15 border border-[#f0883e]/30 px-2 py-0.5 rounded-full">
-                        <Flame className="w-3 h-3 fill-[#f0883e]" />
+                      <span className="flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-[#f0883e] bg-amber-500/10 dark:bg-[#f0883e]/15 border border-amber-500/20 dark:border-[#f0883e]/30 px-2 py-0.5 rounded-full">
+                        <Flame className="w-3 h-3 fill-amber-500 dark:fill-[#f0883e]" />
                         {streak.currentStreak}d
                       </span>
                     </div>
                   </div>
 
                   {task.description && (
-                    <p className="text-xs text-[#8b949e] line-clamp-2">{task.description}</p>
+                    <p className="text-xs text-slate-600 dark:text-[#8b949e] line-clamp-2">{task.description}</p>
                   )}
 
-                  <div className="flex items-center gap-3 text-xs text-[#8b949e] pt-1 flex-wrap">
+                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-[#8b949e] pt-1 flex-wrap">
                     <span
                       className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                       style={{
@@ -181,21 +185,21 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
                     </span>
 
                     <span className="flex items-center gap-1 text-[11px]">
-                      <Repeat className="w-3 h-3 text-[#58a6ff]" />
+                      <Repeat className="w-3 h-3 text-teal-600 dark:text-[#58a6ff]" />
                       {getRecurrenceLabel(task)}
                     </span>
                   </div>
                 </div>
 
                 {/* Card Actions */}
-                <div className="flex items-center justify-between pt-4 mt-4 border-t border-[#30363d] text-xs">
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-200 dark:border-[#30363d] text-xs">
                   <button
                     type="button"
                     onClick={() => {
                       setHeatmapFilter({ type: 'task', value: task.id });
                       onSelectTaskDetail(task);
                     }}
-                    className="flex items-center gap-1 text-[#58a6ff] hover:underline font-semibold"
+                    className="flex items-center gap-1 text-teal-600 dark:text-[#58a6ff] hover:underline font-semibold"
                   >
                     <BarChart3 className="w-3.5 h-3.5" /> View Heatmap & Stats
                   </button>
@@ -204,7 +208,7 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenTaskModal(task)}
-                      className="p-1.5 text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] rounded transition-colors"
+                      className="p-1.5 text-slate-500 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#f0f6fc] hover:bg-slate-100 dark:hover:bg-[#21262d] rounded transition-colors"
                       title="Edit task"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -216,7 +220,7 @@ export const TasksManagerView: React.FC<TasksManagerViewProps> = ({
                           await deleteTask(task.id);
                         }
                       }}
-                      className="p-1.5 text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d] rounded transition-colors"
+                      className="p-1.5 text-slate-500 dark:text-[#8b949e] hover:text-rose-600 dark:hover:text-[#f85149] hover:bg-slate-100 dark:hover:bg-[#21262d] rounded transition-colors"
                       title="Delete task"
                     >
                       <Trash2 className="w-4 h-4" />

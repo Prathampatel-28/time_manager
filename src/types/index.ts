@@ -3,6 +3,7 @@ export type RecurrenceType =
   | 'daily'         // Every day
   | 'weekly_days'   // Specific weekdays (e.g. Mon, Wed, Fri)
   | 'monthly'       // Same day every month (e.g. 15th)
+  | 'monthly_dates' // Specific day-of-month numbers (e.g. 5, 15, 24)
   | 'interval';     // Every N days
 
 export interface RecurrenceRule {
@@ -15,6 +16,8 @@ export interface RecurrenceRule {
   intervalDays?: number;
   // For 'monthly': day of month (1-31)
   dayOfMonth?: number;
+  // For 'monthly_dates': array of day-of-month numbers (1-31)
+  daysOfMonth?: number[];
   // Effective boundary dates
   startDate: string; // YYYY-MM-DD
   endDate?: string;   // YYYY-MM-DD (optional)
@@ -46,6 +49,9 @@ export interface Task {
   recurrence: RecurrenceRule;
   isHighlighted: boolean; // Important / Pinned (exam, deadline, milestone)
   subtasks?: SubTask[];
+  startTime?: string; // "HH:MM", e.g. "09:30"
+  endTime?: string;   // "HH:MM", e.g. "10:30"
+  reminderOffsetMinutes?: number; // e.g. 0, 5, 10, 15, 30, 60
   createdAt: string;
   updatedAt: string;
 }
@@ -134,11 +140,34 @@ export interface StreakStats {
   completionRate: number; // overall percentage
 }
 
+export interface NotificationSettings {
+  enabled: boolean;
+  permissionRequested: boolean;
+  defaultOffsetMinutes: number; // default 10
+  muteCollegePeriods: boolean;
+  mutedCategories: string[]; // e.g. ['Habit', 'College']
+}
+
+export type ThemeMode = 'dark' | 'light' | 'light-gradient';
+
+export type TimetableType = 'College' | 'School' | 'Work' | 'Custom';
+
+export interface TimetableConfig {
+  id: string;
+  name: string; // e.g. "College Timetable", "Work Shift Schedule", "School Classes"
+  type: TimetableType;
+  enabled: boolean;
+  color?: string;
+}
+
 export interface UserSettings {
   id: string;
-  theme: 'dark' | 'light';
+  theme: 'dark' | 'light' | 'light-gradient';
+  themeMode?: ThemeMode;
   heatmapTheme: HeatmapTheme;
   streakCalculationMode: 'all_completed' | 'at_least_one';
   startOfWeek: 0 | 1; // 0 = Sunday, 1 = Monday
   collegeEnabled: boolean;
+  timetableConfig?: TimetableConfig;
+  notificationSettings?: NotificationSettings;
 }

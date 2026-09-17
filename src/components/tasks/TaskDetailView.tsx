@@ -49,6 +49,10 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
         const list = (task.recurrence.daysOfWeek || []).map(d => days[d]).join(', ');
         return `Weekly on ${list || 'specific days'}`;
       }
+      case 'monthly_dates': {
+        const days = (task.recurrence.daysOfMonth || []).join(', ');
+        return `Monthly on days ${days || 'specified'}`;
+      }
       case 'interval':
         return `Every ${task.recurrence.intervalDays || 1} days`;
       default:
@@ -69,7 +73,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 text-xs font-semibold text-[#8b949e] hover:text-[#f0f6fc] transition-colors"
+          className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#f0f6fc] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to All Tasks
         </button>
@@ -78,7 +82,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
           <button
             type="button"
             onClick={() => onEdit(task)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] text-xs font-medium text-[#f0f6fc] rounded-lg border border-[#30363d] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-[#21262d] hover:bg-slate-200 dark:hover:bg-[#30363d] text-xs font-medium text-slate-900 dark:text-[#f0f6fc] rounded-lg border border-slate-300 dark:border-[#30363d] transition-colors"
           >
             <Edit3 className="w-3.5 h-3.5" /> Edit Task
           </button>
@@ -90,7 +94,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                 onBack();
               }
             }}
-            className="p-1.5 text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d] rounded-lg transition-colors"
+            className="p-1.5 text-slate-500 dark:text-[#8b949e] hover:text-rose-600 dark:hover:text-[#f85149] hover:bg-slate-100 dark:hover:bg-[#21262d] rounded-lg transition-colors"
             title="Delete task"
           >
             <Trash2 className="w-4 h-4" />
@@ -99,7 +103,7 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
       </div>
 
       {/* Task Header Profile Card */}
-      <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm">
+      <div className="gradient-card border border-slate-300 dark:border-[#30363d] rounded-xl p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -107,10 +111,10 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                 className="w-3.5 h-3.5 rounded-full inline-block shrink-0"
                 style={{ backgroundColor: task.color }}
               />
-              <h1 className="text-xl font-bold text-[#f0f6fc]">{task.title}</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-[#f0f6fc]">{task.title}</h1>
               {task.isHighlighted && (
-                <span className="flex items-center gap-1 text-xs font-bold text-[#e3b341] bg-[#d29922]/20 px-2 py-0.5 rounded-full border border-[#d29922]/40">
-                  <Star className="w-3 h-3 fill-[#e3b341]" /> Important Milestone
+                <span className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-[#e3b341] bg-amber-500/15 dark:bg-[#d29922]/20 px-2 py-0.5 rounded-full border border-amber-500/30 dark:border-[#d29922]/40">
+                  <Star className="w-3 h-3 fill-amber-500 dark:fill-[#e3b341]" /> Important Milestone
                 </span>
               )}
               <span
@@ -126,16 +130,16 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
             </div>
 
             {task.description && (
-              <p className="text-xs text-[#8b949e] max-w-2xl">{task.description}</p>
+              <p className="text-xs text-slate-600 dark:text-[#8b949e] max-w-2xl">{task.description}</p>
             )}
 
-            <div className="flex items-center gap-4 text-xs text-[#8b949e] pt-1 flex-wrap">
+            <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-[#8b949e] pt-1 flex-wrap">
               <span className="flex items-center gap-1.5">
-                <Repeat className="w-3.5 h-3.5 text-[#58a6ff]" />
+                <Repeat className="w-3.5 h-3.5 text-teal-600 dark:text-[#58a6ff]" />
                 {getRecurrenceSummary()}
               </span>
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#3fb950]" />
+                <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-[#3fb950]" />
                 Started {format(fromDateString(task.recurrence.startDate), 'MMM d, yyyy')}
               </span>
             </div>
@@ -143,28 +147,28 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
 
           {/* Key Stats Counter Pills */}
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded-xl text-center min-w-[90px]">
-              <div className="flex items-center justify-center gap-1 text-[#f0883e]">
-                <Flame className="w-4 h-4 fill-[#f0883e]" />
+            <div className="p-3 bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-xl text-center min-w-[90px]">
+              <div className="flex items-center justify-center gap-1 text-amber-600 dark:text-[#f0883e]">
+                <Flame className="w-4 h-4 fill-amber-500 dark:fill-[#f0883e]" />
                 <span className="text-base font-bold">{taskStats.currentStreak}</span>
               </div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Streak</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#8b949e]">Streak</span>
             </div>
 
-            <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded-xl text-center min-w-[90px]">
-              <div className="flex items-center justify-center gap-1 text-[#e3b341]">
+            <div className="p-3 bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-xl text-center min-w-[90px]">
+              <div className="flex items-center justify-center gap-1 text-amber-700 dark:text-[#e3b341]">
                 <Trophy className="w-4 h-4" />
                 <span className="text-base font-bold">{taskStats.longestStreak}</span>
               </div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Best</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#8b949e]">Best</span>
             </div>
 
-            <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded-xl text-center min-w-[90px]">
-              <div className="flex items-center justify-center gap-1 text-[#3fb950]">
+            <div className="p-3 bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-xl text-center min-w-[90px]">
+              <div className="flex items-center justify-center gap-1 text-emerald-600 dark:text-[#3fb950]">
                 <CheckCircle2 className="w-4 h-4" />
                 <span className="text-base font-bold">{taskStats.totalCompletions}</span>
               </div>
-              <span className="text-[10px] uppercase font-bold text-[#8b949e]">Total</span>
+              <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#8b949e]">Total</span>
             </div>
           </div>
         </div>
@@ -172,45 +176,45 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
 
       {/* Task-Specific Contribution Heatmap */}
       <div>
-        <h2 className="text-sm font-bold uppercase tracking-wider text-[#8b949e] mb-3">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-[#8b949e] mb-3">
           Individual Task Activity Heatmap
         </h2>
         <HeatmapGraph dateRange="1y" onDayClick={onDayClick} />
       </div>
 
       {/* Recent Occurrence History */}
-      <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-[#8b949e] mb-4">
+      <div className="gradient-card border border-slate-300 dark:border-[#30363d] rounded-xl p-6">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-600 dark:text-[#8b949e] mb-4">
           Recorded Occurrence History ({taskOccurrences.length})
         </h2>
 
         {taskOccurrences.length === 0 ? (
-          <div className="p-6 text-center border border-dashed border-[#30363d] rounded-xl text-xs text-[#8b949e]">
+          <div className="p-6 text-center border border-dashed border-slate-300 dark:border-[#30363d] rounded-xl text-xs text-slate-500 dark:text-[#8b949e]">
             No recorded history yet. Mark occurrences done or skipped on the dashboard or agenda.
           </div>
         ) : (
-          <div className="divide-y divide-[#30363d]">
+          <div className="divide-y divide-slate-200 dark:divide-[#30363d]">
             {taskOccurrences.map(occ => (
               <div
                 key={occ.id}
-                className="py-3 flex items-center justify-between text-xs cursor-pointer hover:bg-[#0d1117] px-3 rounded transition-colors"
+                className="py-3 flex items-center justify-between text-xs cursor-pointer hover:bg-slate-100 dark:hover:bg-[#0d1117] px-3 rounded transition-colors"
                 onClick={() => onDayClick(occ.date)}
               >
                 <div className="flex items-center gap-3">
                   {occ.status === 'done' ? (
-                    <CheckCircle2 className="w-4 h-4 text-[#3fb950]" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#3fb950]" />
                   ) : occ.status === 'skipped' ? (
-                    <Slash className="w-4 h-4 text-[#8b949e]" />
+                    <Slash className="w-4 h-4 text-slate-400 dark:text-[#8b949e]" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-[#8b949e]" />
+                    <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-[#8b949e]" />
                   )}
 
                   <div>
-                    <span className="font-semibold text-[#f0f6fc]">
+                    <span className="font-semibold text-slate-900 dark:text-[#f0f6fc]">
                       {format(fromDateString(occ.date), 'EEEE, MMMM d, yyyy')}
                     </span>
                     {occ.notes && (
-                      <p className="text-[11px] text-[#8b949e] mt-0.5">{occ.notes}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-[#8b949e] mt-0.5">{occ.notes}</p>
                     )}
                   </div>
                 </div>
@@ -219,10 +223,10 @@ export const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                   <span
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
                       occ.status === 'done'
-                        ? 'bg-[#238636]/20 text-[#3fb950]'
+                        ? 'bg-emerald-500/15 text-emerald-700 dark:bg-[#238636]/20 dark:text-[#3fb950]'
                         : occ.status === 'skipped'
-                        ? 'bg-[#21262d] text-[#8b949e]'
-                        : 'bg-[#1f6feb]/20 text-[#58a6ff]'
+                        ? 'bg-slate-200 dark:bg-[#21262d] text-slate-700 dark:text-[#8b949e]'
+                        : 'bg-teal-500/15 text-teal-700 dark:bg-[#1f6feb]/20 dark:text-[#58a6ff]'
                     }`}
                   >
                     {occ.status === 'skipped' ? 'Skipped (Preserved Streak)' : occ.status}

@@ -220,50 +220,52 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Header Card */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#161b22] border border-[#30363d] p-6 rounded-xl shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 gradient-card border border-slate-300 dark:border-slate-800 p-6 rounded-xl shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-[#238636]/20 text-[#3fb950] rounded-lg border border-[#238636]/40">
+            <div className="p-2 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-500/40">
               <TrendingUp className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-[#f0f6fc]">Analytics & Progress Insights</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Analytics & Progress Insights</h1>
           </div>
-          <p className="text-xs text-[#8b949e] mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
             Detailed graphical metrics, completion trends over time, and task consistency stats.
           </p>
         </div>
 
-        {/* Timeframe selector tab buttons */}
-        <div className="flex items-center gap-1.5 bg-[#0d1117] border border-[#30363d] p-1 rounded-xl text-xs">
-          {(['daily', 'weekly', 'monthly'] as const).map(mode => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setTimeframe(mode)}
-              className={`px-3 py-1.5 rounded-lg font-semibold capitalize transition-all ${
-                timeframe === mode
-                  ? 'bg-[#21262d] text-[#58a6ff] shadow-xs'
-                  : 'text-[#8b949e] hover:text-[#c9d1d9]'
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
+        {/* Right actions: Timeframe Selector */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-[#0d1117] border border-slate-300 dark:border-[#30363d] p-1 rounded-xl text-xs">
+            {(['daily', 'weekly', 'monthly'] as const).map(mode => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setTimeframe(mode)}
+                className={`px-3 py-1.5 rounded-lg font-semibold capitalize transition-all ${
+                  timeframe === mode
+                    ? 'bg-white dark:bg-[#21262d] text-teal-600 dark:text-[#58a6ff] shadow-sm font-bold'
+                    : 'text-slate-600 dark:text-[#8b949e] hover:text-slate-900 dark:hover:text-[#c9d1d9]'
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Main Stats KPIs & Streak Visualizer */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Streak Visualizer Card */}
-        <div className="md:col-span-2 bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="md:col-span-2 gradient-card border border-slate-300 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-[#f0883e] fill-[#f0883e]" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-[#f0f6fc]">
+              <Flame className="w-5 h-5 text-amber-500 fill-amber-500" />
+              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
                 Streak Performance & Goal
               </h2>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#f0883e]/15 text-[#f0883e] border border-[#f0883e]/30">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
               {streakStats.currentStreak >= streakStats.longestStreak && streakStats.currentStreak > 0
                 ? '🔥 Personal Record Active!'
                 : `${streakProgressPercent}% of Personal Best`}
@@ -271,30 +273,30 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
           </div>
 
           <div className="grid grid-cols-2 gap-4 my-2">
-            <div className="p-4 bg-[#0d1117] border border-[#30363d] rounded-xl flex items-center gap-3">
-              <div className="p-2.5 bg-[#f0883e]/15 text-[#f0883e] rounded-lg">
-                <Flame className="w-5 h-5 fill-[#f0883e]" />
+            <div className="p-4 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-xl flex items-center gap-3 shadow-xs">
+              <div className="p-2.5 bg-amber-500/15 text-amber-500 rounded-lg">
+                <Flame className="w-5 h-5 fill-amber-500" />
               </div>
               <div>
-                <span className="text-[11px] text-[#8b949e] font-semibold uppercase block">
+                <span className="text-[11px] text-slate-500 dark:text-[#8b949e] font-semibold uppercase block">
                   Current Streak
                 </span>
-                <span className="text-2xl font-bold text-[#f0f6fc]">
-                  {streakStats.currentStreak} <span className="text-xs text-[#8b949e] font-normal">days</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-[#f0f6fc]">
+                  {streakStats.currentStreak} <span className="text-xs text-slate-500 dark:text-[#8b949e] font-normal">days</span>
                 </span>
               </div>
             </div>
 
-            <div className="p-4 bg-[#0d1117] border border-[#30363d] rounded-xl flex items-center gap-3">
-              <div className="p-2.5 bg-[#e3b341]/15 text-[#e3b341] rounded-lg">
+            <div className="p-4 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-xl flex items-center gap-3 shadow-xs">
+              <div className="p-2.5 bg-yellow-500/15 text-yellow-600 dark:text-yellow-400 rounded-lg">
                 <Trophy className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[11px] text-[#8b949e] font-semibold uppercase block">
+                <span className="text-[11px] text-slate-500 dark:text-[#8b949e] font-semibold uppercase block">
                   Longest Streak
                 </span>
-                <span className="text-2xl font-bold text-[#f0f6fc]">
-                  {streakStats.longestStreak} <span className="text-xs text-[#8b949e] font-normal">days</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-[#f0f6fc]">
+                  {streakStats.longestStreak} <span className="text-xs text-slate-500 dark:text-[#8b949e] font-normal">days</span>
                 </span>
               </div>
             </div>
@@ -302,13 +304,13 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
 
           {/* Visual Progress Bar */}
           <div className="space-y-1.5">
-            <div className="flex justify-between text-xs text-[#8b949e]">
+            <div className="flex justify-between text-xs text-slate-500 dark:text-[#8b949e]">
               <span>Current Streak Progress vs Record ({streakStats.currentStreak}/{streakStats.longestStreak} days)</span>
-              <span className="font-semibold text-[#f0f6fc]">{streakProgressPercent}%</span>
+              <span className="font-semibold text-slate-900 dark:text-[#f0f6fc]">{streakProgressPercent}%</span>
             </div>
-            <div className="w-full h-3 bg-[#0d1117] rounded-full overflow-hidden border border-[#30363d]/60">
+            <div className="w-full h-3 bg-slate-200 dark:bg-[#0d1117] rounded-full overflow-hidden border border-slate-300 dark:border-[#30363d]/60">
               <div
-                className="h-full bg-gradient-to-r from-[#f0883e] via-[#e3b341] to-[#39d353] rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${streakProgressPercent}%` }}
               />
             </div>
@@ -316,29 +318,29 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
         </div>
 
         {/* Overall Completion Rate Stat Card */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="gradient-card border border-slate-300 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4">
           <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-[#58a6ff]" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-[#f0f6fc]">
+            <Target className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
               Overall Rate
             </h2>
           </div>
 
           <div className="py-2 text-center">
-            <div className="text-4xl font-extrabold text-[#f0f6fc]">
+            <div className="text-4xl font-extrabold text-slate-900 dark:text-[#f0f6fc]">
               {streakStats.completionRate}%
             </div>
-            <p className="text-xs text-[#8b949e] mt-1">Overall tasks completed on schedule</p>
+            <p className="text-xs text-slate-500 dark:text-[#8b949e] mt-1">Overall tasks completed on schedule</p>
           </div>
 
-          <div className="pt-3 border-t border-[#30363d] grid grid-cols-2 text-center text-xs">
+          <div className="pt-3 border-t border-slate-200 dark:border-[#30363d] grid grid-cols-2 text-center text-xs">
             <div>
-              <span className="text-[#8b949e] block text-[10px] uppercase font-semibold">Total Done</span>
-              <span className="text-[#f0f6fc] font-bold text-sm">{streakStats.totalCompletions}</span>
+              <span className="text-slate-500 dark:text-[#8b949e] block text-[10px] uppercase font-semibold">Total Done</span>
+              <span className="text-slate-900 dark:text-[#f0f6fc] font-bold text-sm">{streakStats.totalCompletions}</span>
             </div>
             <div>
-              <span className="text-[#8b949e] block text-[10px] uppercase font-semibold">Active Days</span>
-              <span className="text-[#f0f6fc] font-bold text-sm">{streakStats.totalActiveDays}</span>
+              <span className="text-slate-500 dark:text-[#8b949e] block text-[10px] uppercase font-semibold">Active Days</span>
+              <span className="text-slate-900 dark:text-[#f0f6fc] font-bold text-sm">{streakStats.totalActiveDays}</span>
             </div>
           </div>
         </div>
@@ -346,13 +348,13 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
 
       {/* Main Charts Row */}
       {!hasData ? (
-        <div className="bg-[#161b22] border border-dashed border-[#30363d] rounded-xl p-12 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-[#21262d] text-[#58a6ff] flex items-center justify-center mx-auto">
+        <div className="gradient-card border border-dashed border-slate-300 dark:border-slate-800 rounded-xl p-12 text-center space-y-4">
+          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-[#21262d] text-teal-600 dark:text-[#58a6ff] flex items-center justify-center mx-auto">
             <Sparkles className="w-6 h-6" />
           </div>
           <div className="max-w-md mx-auto space-y-1">
-            <h3 className="text-base font-bold text-[#f0f6fc]">No Activity Data Recorded Yet</h3>
-            <p className="text-xs text-[#8b949e]">
+            <h3 className="text-base font-bold text-slate-900 dark:text-[#f0f6fc]">No Activity Data Recorded Yet</h3>
+            <p className="text-xs text-slate-500 dark:text-[#8b949e]">
               Create your first habit or task to see graphical trends, completion charts, and category consistency breakdowns here.
             </p>
           </div>
@@ -360,7 +362,7 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
             <button
               type="button"
               onClick={onOpenTaskModal}
-              className="px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white text-xs font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors"
             >
               + Create Your First Task
             </button>
@@ -369,14 +371,14 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
       ) : (
         <div className="space-y-6">
           {/* Chart 1: Completion Percentage Trend Line/Area Chart */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm">
+          <div className="gradient-card border border-slate-300 dark:border-slate-800 rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-sm font-bold text-[#f0f6fc] uppercase tracking-wider flex items-center gap-2">
-                  <BarChart2 className="w-4 h-4 text-[#3fb950]" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-[#f0f6fc] uppercase tracking-wider flex items-center gap-2">
+                  <BarChart2 className="w-4 h-4 text-emerald-600 dark:text-[#3fb950]" />
                   Completion Percentage Over Time ({timeframe})
                 </h2>
-                <p className="text-xs text-[#8b949e] mt-0.5">
+                <p className="text-xs text-slate-500 dark:text-[#8b949e] mt-0.5">
                   Tracks consistency trends and completed task volume across {timeframe} intervals.
                 </p>
               </div>
@@ -387,19 +389,19 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
                 <AreaChart data={timeSeriesData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorCompletion" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#238636" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#238636" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" vertical={false} />
-                  <XAxis dataKey="label" stroke="#8b949e" tick={{ fontSize: 11 }} />
-                  <YAxis stroke="#8b949e" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" vertical={false} />
+                  <XAxis dataKey="label" stroke="#64748b" tick={{ fontSize: 11 }} />
+                  <YAxis stroke="#64748b" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#0d1117',
-                      borderColor: '#30363d',
+                      backgroundColor: '#1e293b',
+                      borderColor: '#334155',
                       borderRadius: '8px',
-                      color: '#f0f6fc',
+                      color: '#f8fafc',
                       fontSize: '12px',
                     }}
                     formatter={(val: any) => [`${val}%`, 'Completion Rate']}
@@ -407,7 +409,7 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
                   <Area
                     type="monotone"
                     dataKey="completionPercentage"
-                    stroke="#3fb950"
+                    stroke="#10b981"
                     strokeWidth={2}
                     fillOpacity={1}
                     fill="url(#colorCompletion)"
@@ -420,16 +422,16 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
           {/* Grid of Category Breakdown & Task Consistency */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Chart 2: Category Breakdown Pie/Donut Chart */}
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm">
+            <div className="gradient-card border border-slate-300 dark:border-slate-800 rounded-xl p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-4">
-                <PieChartIcon className="w-4 h-4 text-[#a855f7]" />
-                <h2 className="text-sm font-bold text-[#f0f6fc] uppercase tracking-wider">
+                <PieChartIcon className="w-4 h-4 text-purple-600 dark:text-[#a855f7]" />
+                <h2 className="text-sm font-bold text-slate-900 dark:text-[#f0f6fc] uppercase tracking-wider">
                   Completion Volume by Category
                 </h2>
               </div>
 
               {categoryData.length === 0 ? (
-                <p className="text-xs text-[#8b949e] py-8 text-center">No category data recorded yet.</p>
+                <p className="text-xs text-slate-500 dark:text-[#8b949e] py-8 text-center">No category data recorded yet.</p>
               ) : (
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   <div className="h-56 w-full sm:w-1/2">
@@ -450,10 +452,10 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
                         </Pie>
                         <Tooltip
                           contentStyle={{
-                            backgroundColor: '#0d1117',
-                            borderColor: '#30363d',
+                            backgroundColor: '#1e293b',
+                            borderColor: '#334155',
                             borderRadius: '8px',
-                            color: '#f0f6fc',
+                            color: '#f8fafc',
                             fontSize: '12px',
                           }}
                           formatter={(val: any) => [`${val} tasks done`, 'Completed']}
@@ -465,14 +467,14 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
                   {/* Legend & Stats */}
                   <div className="w-full sm:w-1/2 space-y-2 text-xs">
                     {categoryData.map(cat => (
-                      <div key={cat.name} className="flex items-center justify-between p-2 bg-[#0d1117] border border-[#30363d] rounded-lg">
+                      <div key={cat.name} className="flex items-center justify-between p-2 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-lg shadow-xs">
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: cat.color }} />
-                          <span className="font-semibold text-[#f0f6fc] truncate">{cat.name}</span>
+                          <span className="font-semibold text-slate-900 dark:text-[#f0f6fc] truncate">{cat.name}</span>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="font-bold text-[#f0f6fc]">{cat.value}</span>
-                          <span className="text-[10px] text-[#8b949e] ml-1">({cat.rate}%)</span>
+                          <span className="font-bold text-slate-900 dark:text-[#f0f6fc]">{cat.value}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-[#8b949e] ml-1">({cat.rate}%)</span>
                         </div>
                       </div>
                     ))}
@@ -482,32 +484,32 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
             </div>
 
             {/* Table/List: Most & Least Consistent Tasks */}
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm">
+            <div className="gradient-card border border-slate-300 dark:border-slate-800 rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[#e3b341]" />
-                  <h2 className="text-sm font-bold text-[#f0f6fc] uppercase tracking-wider">
+                  <Award className="w-4 h-4 text-amber-600 dark:text-[#e3b341]" />
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-[#f0f6fc] uppercase tracking-wider">
                     Task Consistency Ranking
                   </h2>
                 </div>
-                <span className="text-[11px] text-[#8b949e]">Most to Least Consistent</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#8b949e]">Most to Least Consistent</span>
               </div>
 
               {taskConsistencyRanking.length === 0 ? (
-                <p className="text-xs text-[#8b949e] py-8 text-center">No tasks available for ranking.</p>
+                <p className="text-xs text-slate-500 dark:text-[#8b949e] py-8 text-center">No tasks available for ranking.</p>
               ) : (
                 <div className="space-y-2.5 max-h-64 overflow-y-auto pr-1">
                   {taskConsistencyRanking.map((tRank, idx) => (
                     <div
                       key={tRank.id}
-                      className="p-3 bg-[#0d1117] border border-[#30363d] rounded-lg flex items-center justify-between gap-3 text-xs"
+                      className="p-3 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-lg flex items-center justify-between gap-3 text-xs shadow-xs"
                     >
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <span className="w-5 h-5 rounded-full bg-[#21262d] text-[#8b949e] font-bold text-[10px] flex items-center justify-center shrink-0">
+                        <span className="w-5 h-5 rounded-full bg-slate-100 dark:bg-[#21262d] text-slate-700 dark:text-[#8b949e] font-bold text-[10px] flex items-center justify-center shrink-0">
                           #{idx + 1}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <span className="font-semibold text-[#f0f6fc] block truncate">{tRank.title}</span>
+                          <span className="font-semibold text-slate-900 dark:text-[#f0f6fc] block truncate">{tRank.title}</span>
                           <span
                             className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full inline-block mt-0.5"
                             style={{
@@ -521,8 +523,8 @@ export const StatsView: React.FC<{ onOpenTaskModal?: () => void }> = ({ onOpenTa
                       </div>
 
                       <div className="text-right shrink-0">
-                        <span className="font-bold text-[#3fb950] block">{tRank.rate}% rate</span>
-                        <span className="text-[10px] text-[#8b949e]">
+                        <span className="font-bold text-emerald-600 dark:text-[#3fb950] block">{tRank.rate}% rate</span>
+                        <span className="text-[10px] text-slate-500 dark:text-[#8b949e]">
                           {tRank.completed}/{tRank.scheduled} done
                         </span>
                       </div>

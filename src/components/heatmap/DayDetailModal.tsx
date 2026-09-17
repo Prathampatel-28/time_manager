@@ -57,39 +57,39 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
       <div 
-        className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden text-[#c9d1d9]"
+        className="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-[#161b22] border border-slate-200 dark:border-[#30363d] rounded-2xl shadow-2xl overflow-hidden text-slate-800 dark:text-[#c9d1d9]"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d] bg-[#0d1117]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#30363d] bg-slate-50/90 dark:bg-[#0d1117]">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-[#f0f6fc]">{formattedDate}</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-[#f0f6fc]">{formattedDate}</h2>
               {isToday && (
-                <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#1f6feb]/20 text-[#58a6ff] border border-[#1f6feb]/40 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-semibold uppercase tracking-wider bg-teal-500/15 text-teal-700 dark:text-[#58a6ff] border border-teal-500/30 dark:border-[#1f6feb]/40 px-2.5 py-0.5 rounded-full">
                   Today
                 </span>
               )}
               {activity?.hasHighlighted && (
-                <span className="flex items-center gap-1 text-[11px] font-semibold bg-[#d29922]/20 text-[#e3b341] border border-[#d29922]/40 px-2 py-0.5 rounded-full">
-                  <Star className="w-3 h-3 fill-[#e3b341]" /> Highlighted
+                <span className="flex items-center gap-1 text-[11px] font-semibold bg-amber-500/15 text-amber-700 dark:text-[#e3b341] border border-amber-500/30 dark:border-[#d29922]/40 px-2 py-0.5 rounded-full">
+                  <Star className="w-3 h-3 fill-amber-500 dark:fill-[#e3b341]" /> Highlighted
                 </span>
               )}
             </div>
             
             {/* Day stats badge */}
-            <div className="flex items-center gap-3 mt-1 text-xs text-[#8b949e]">
+            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-[#8b949e]">
               <span>
                 Completed:{' '}
-                <strong className="text-[#f0f6fc]">
+                <strong className="text-slate-900 dark:text-[#f0f6fc]">
                   {activity?.totalCompleted || 0} / {activity?.totalScheduled || 0}
                 </strong>
                 {activity?.totalScheduled ? ` (${activity.completionPercentage}%)` : ''}
               </span>
               {activity?.totalSkipped ? (
-                <span className="text-[#8b949e] italic">
+                <span className="text-slate-500 dark:text-[#8b949e] italic">
                   ({activity.totalSkipped} skipped - neutral for streak)
                 </span>
               ) : null}
@@ -99,7 +99,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d] rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-[#f0f6fc] hover:bg-slate-200/60 dark:hover:bg-[#21262d] rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,7 +110,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
           {/* Section 1: Tasks & Habits */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#8b949e]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#8b949e]">
                 Scheduled Tasks & Habits ({activity?.tasks.length || 0})
               </h3>
               {onOpenTaskModalForDate && (
@@ -120,7 +120,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                     onClose();
                     onOpenTaskModalForDate(dateStr);
                   }}
-                  className="flex items-center gap-1 text-xs text-[#58a6ff] hover:underline font-medium"
+                  className="flex items-center gap-1 text-xs text-teal-600 dark:text-[#58a6ff] hover:underline font-bold"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Task for this Date
                 </button>
@@ -128,7 +128,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
             </div>
 
             {activity?.tasks.length === 0 ? (
-              <div className="p-4 rounded-lg bg-[#0d1117] border border-[#30363d] text-center text-xs text-[#8b949e]">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] text-center text-xs text-slate-500 dark:text-[#8b949e]">
                 No tasks scheduled for this date.
               </div>
             ) : (
@@ -155,9 +155,9 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-[#58a6ff]" />
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-[#8b949e]">
-                  College Schedule
+                <GraduationCap className="w-4 h-4 text-teal-600 dark:text-[#58a6ff]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-[#8b949e]">
+                  Timetable Schedule
                 </h3>
               </div>
 
@@ -165,7 +165,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={handleMarkCollegeHoliday}
-                  className="text-xs text-[#8b949e] hover:text-[#e3b341] transition-colors"
+                  className="text-xs text-slate-500 dark:text-[#8b949e] hover:text-amber-600 dark:hover:text-[#e3b341] transition-colors"
                 >
                   Mark Holiday on this Date
                 </button>
@@ -173,16 +173,16 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
             </div>
 
             {activity?.isCollegeHoliday ? (
-              <div className="p-4 rounded-lg bg-[#d29922]/10 border border-[#d29922]/30 flex items-center gap-3 text-xs text-[#e3b341]">
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-xs text-amber-700 dark:text-[#e3b341]">
                 <AlertCircle className="w-5 h-5 shrink-0" />
                 <div>
-                  <p className="font-semibold">College Holiday</p>
-                  <p className="text-[#8b949e] mt-0.5">Classes cancelled for this date.</p>
+                  <p className="font-semibold">Timetable Holiday</p>
+                  <p className="text-slate-500 dark:text-[#8b949e] mt-0.5">Classes cancelled for this date.</p>
                 </div>
               </div>
             ) : activity?.collegePeriods.length === 0 ? (
-              <div className="p-4 rounded-lg bg-[#0d1117] border border-[#30363d] text-center text-xs text-[#8b949e]">
-                No college classes scheduled for this day of the week.
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] text-center text-xs text-slate-500 dark:text-[#8b949e]">
+                No classes scheduled for this day of the week.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -195,12 +195,12 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-[#30363d] bg-[#0d1117] text-xs text-[#8b949e]">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200 dark:border-[#30363d] bg-slate-50 dark:bg-[#0d1117] text-xs text-slate-500 dark:text-[#8b949e]">
           <span>Tip: Skipped occurrences do not lower your completion % or break streaks.</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 bg-[#21262d] hover:bg-[#30363d] text-[#f0f6fc] rounded-md font-medium transition-colors"
+            className="px-5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl font-bold transition-colors shadow"
           >
             Done
           </button>

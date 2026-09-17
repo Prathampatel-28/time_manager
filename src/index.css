@@ -1,40 +1,33 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
-  :root {
-    --bg-main: #0d1117;
-    --bg-card: #161b22;
-    --bg-card-hover: #1c2128;
-    --bg-surface: #21262d;
-    --border-subtle: #30363d;
-    --border-muted: #21262d;
+  :root, html.dark {
+    --bg-gradient: linear-gradient(135deg, #090d16 0%, #0d1117 35%, #161b22 70%, #090d16 100%);
+    --bg-card: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.90) 100%);
+    --bg-card-hover: linear-gradient(135deg, rgba(30, 38, 48, 0.95) 0%, rgba(22, 27, 34, 0.90) 100%);
+    --border-subtle: rgba(48, 54, 61, 0.8);
+    --border-muted: rgba(33, 38, 45, 0.9);
     --text-primary: #f0f6fc;
     --text-secondary: #8b949e;
     --text-muted: #6e7681;
-    --accent-primary: #238636;
-    --accent-hover: #2ea043;
-    --highlight-border: #f0883e;
-    --highlight-bg: rgba(240, 136, 62, 0.12);
   }
 
-  .theme-light {
-    --bg-main: #f6f8fa;
-    --bg-card: #ffffff;
-    --bg-card-hover: #f3f4f6;
-    --bg-surface: #eaeef2;
-    --border-subtle: #d0d7de;
-    --border-muted: #e1e4e8;
-    --text-primary: #1f2328;
-    --text-secondary: #57606a;
-    --text-muted: #6e7781;
-    --accent-primary: #1f883d;
-    --accent-hover: #1a7f37;
-    --highlight-border: #d97706;
-    --highlight-bg: rgba(245, 158, 11, 0.12);
+  html.theme-light-gradient {
+    --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 35%, #e0f2fe 70%, #f1f5f9 100%);
+    --bg-card: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
+    --bg-card-hover: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    --border-subtle: #cbd5e1;
+    --border-muted: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
   }
 
   body {
-    background-color: var(--bg-main);
+    background: var(--bg-gradient) !important;
+    background-attachment: fixed !important;
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
     margin: 0;
@@ -44,13 +37,30 @@
   }
 }
 
+/* Gradient Container Utility Classes */
+.gradient-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.gradient-card:hover {
+  background: var(--bg-card-hover);
+}
+
+.theme-light-gradient .gradient-card {
+  box-shadow: 0 8px 20px -3px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1 !important;
+}
+
 /* Custom smooth scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-main);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--border-subtle);

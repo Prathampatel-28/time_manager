@@ -3,6 +3,7 @@ import {
   differenceInCalendarDays,
   getDay,
   getDate,
+  getDaysInMonth,
   isBefore,
   isAfter,
 } from 'date-fns';
@@ -21,6 +22,31 @@ export function toDateString(date: Date): string {
 export function fromDateString(dateStr: string): Date {
   const [year, month, day] = dateStr.split('-').map(Number);
   return new Date(year, month - 1, day);
+}
+
+/**
+ * Evaluates whether a task scheduled for dateStr is actionable right now.
+ * - Past dates (dateStr < todayStr): Actionable (can mark complete retroactively).
+ * - Future dates (dateStr > todayStr): Not actionable yet.
+ * - Today (dateStr === todayStr):
+ *   - If task has a specific startTime ("HH:MM"): Actionable ONLY if currentTime >= startTime.
+ *   - If no startTime: Actionable all day.
+ */
+export function isTaskActionableForDate(
+  task: Task,
+  dateStr: string,
+  now: Date = new Date()
+): boolean {
+  const todayStr = toDateString(now);
+  if (dateStr < todayStr) return true;
+  if (dateStr > todayStr) return false;
+
+  // Today
+  if (!task.startTime) return true;
+
+  // Compare HH:mm string (e.g. "14:30")
+  const currentHHMM = format(now, 'HH:mm');
+  return currentHHMM >= task.startTime;
 }
 
 /**
@@ -62,6 +88,21 @@ export function isTaskScheduledForDate(task: Task, dateStr: string): boolean {
       const targetDayOfMonth = getDate(targetDate);
       const expectedDay = task.recurrence.dayOfMonth ?? getDate(startDate);
       return targetDayOfMonth === expectedDay;
+    }
+
+    case 'monthly_dates': {
+      const targetDayOfMonth = getDate(targetDate);
+      const maxDayInMonth = getDaysInMonth(targetDate);
+      const days = task.recurrence.daysOfMonth ?? [];
+      if (days.length === 0) return false;
+
+      return days.some(d => {
+        if (d === targetDayOfMonth) return true;
+        // Edge case: if requested day number > maxDayInMonth (e.g. 30, 31 in Feb/Short months)
+        // and targetDate is the last day of this month, shift to the last day of the month.
+        if (targetDayOfMonth === maxDayInMonth && d > maxDayInMonth) return true;
+        return false;
+      });
     }
 
     case 'interval': {
@@ -231,9 +272,9 @@ export function computeDayActivity(
       status: resolved.status,
     });
 
-    // Skipped instances do NOT count against streaks / denominator!
     if (resolved.status === 'skipped') {
       skippedCount++;
+      scheduledCount++;
     } else if (resolved.status === 'done') {
       scheduledCount++;
       completedCount++;

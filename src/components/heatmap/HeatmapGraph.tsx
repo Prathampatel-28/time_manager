@@ -38,7 +38,8 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
     y: number;
   } | null>(null);
 
-  const isLight = settings.theme === 'light';
+  const mode = settings.themeMode || settings.theme;
+  const isLight = mode === 'light' || mode === 'light-gradient';
   const todayStr = useMemo(() => toDateString(new Date()), []);
   const today = useMemo(() => new Date(), []);
 
@@ -120,42 +121,42 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
   }, [heatmapFilter, tasks]);
 
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 shadow-lg relative">
+    <div className="gradient-card rounded-2xl p-6 shadow-xl relative border border-slate-300 dark:border-slate-700/60">
       {/* Top Banner: Filter & Summary Metrics */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-[#30363d]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-200 dark:border-[#30363d]">
         <div>
-          <h2 className="text-base font-semibold text-[#f0f6fc] flex items-center gap-2">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-[#f0f6fc] flex items-center gap-2">
             <span>Activity Heatmap</span>
-            <span className="text-xs font-normal text-[#8b949e]">({filterTitle})</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-[#8b949e]">({filterTitle})</span>
           </h2>
-          <p className="text-xs text-[#8b949e] mt-0.5">
+          <p className="text-xs text-slate-600 dark:text-[#8b949e] mt-0.5">
             Reflects actual completed tasks and daily consistency. Skipped occurrences do not break streaks.
           </p>
         </div>
 
         {/* Quick Streak Stats Pills */}
         <div className="flex items-center gap-2.5 flex-wrap text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0d1117] border border-[#30363d] rounded-lg">
-            <Flame className="w-4 h-4 text-[#f0883e] fill-[#f0883e]" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-lg shadow-xs">
+            <Flame className="w-4 h-4 text-amber-500 fill-amber-500" />
             <div>
-              <span className="text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Streak</span>
-              <span className="text-[#f0f6fc] font-bold">{streakStats.currentStreak} Days</span>
+              <span className="text-slate-500 dark:text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Streak</span>
+              <span className="text-slate-900 dark:text-[#f0f6fc] font-bold">{streakStats.currentStreak} Days</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0d1117] border border-[#30363d] rounded-lg">
-            <Trophy className="w-4 h-4 text-[#e3b341]" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-lg shadow-xs">
+            <Trophy className="w-4 h-4 text-yellow-600 dark:text-[#e3b341]" />
             <div>
-              <span className="text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Best</span>
-              <span className="text-[#f0f6fc] font-bold">{streakStats.longestStreak} Days</span>
+              <span className="text-slate-500 dark:text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Best</span>
+              <span className="text-slate-900 dark:text-[#f0f6fc] font-bold">{streakStats.longestStreak} Days</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0d1117] border border-[#30363d] rounded-lg">
-            <CheckCircle2 className="w-4 h-4 text-[#3fb950]" />
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/90 dark:bg-[#0d1117] border border-slate-200 dark:border-[#30363d] rounded-lg shadow-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-[#3fb950]" />
             <div>
-              <span className="text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Total</span>
-              <span className="text-[#f0f6fc] font-bold">{streakStats.totalCompletions}</span>
+              <span className="text-slate-500 dark:text-[#8b949e] text-[10px] uppercase font-semibold block leading-none">Total</span>
+              <span className="text-slate-900 dark:text-[#f0f6fc] font-bold">{streakStats.totalCompletions}</span>
             </div>
           </div>
         </div>
@@ -165,7 +166,7 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
       <div className="overflow-x-auto pb-2 scrollbar-thin">
         <div className="min-w-fit inline-block">
           {/* Month labels row */}
-          <div className="flex text-[11px] text-[#8b949e] font-medium mb-1.5 h-4 pl-8 relative">
+          <div className="flex text-[11px] text-slate-600 dark:text-[#8b949e] font-medium mb-1.5 h-4 pl-8 relative">
             {monthLabels.map(label => (
               <span
                 key={`${label.name}-${label.weekIndex}`}
@@ -180,7 +181,7 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
           {/* Grid: Day labels on left, Week columns on right */}
           <div className="flex gap-2">
             {/* Weekday labels (Mon, Wed, Fri like GitHub) */}
-            <div className="flex flex-col justify-between text-[10px] text-[#8b949e] font-medium py-[1px] select-none pr-1">
+            <div className="flex flex-col justify-between text-[10px] text-slate-500 dark:text-[#8b949e] font-medium py-[1px] select-none pr-1">
               <span className="h-[12px]"></span>
               <span className="h-[12px] leading-[12px]">Mon</span>
               <span className="h-[12px]"></span>
@@ -233,17 +234,17 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
                         onMouseLeave={() => setHoveredDay(null)}
                         style={{ backgroundColor: cellColor }}
                         className={`w-[12px] h-[12px] rounded-[2px] cursor-pointer transition-transform hover:scale-125 relative select-none ${
-                          isLight ? 'border border-gray-300/40' : 'border border-[#30363d]/30'
+                          isLight ? 'border border-gray-300/60' : 'border border-[#30363d]/30'
                         } ${
                           isToday 
-                            ? 'ring-1.5 ring-[#58a6ff] ring-offset-1 ring-offset-[#0d1117] z-10' 
-                            : 'hover:ring-1 hover:ring-[#8b949e]'
+                            ? 'ring-1.5 ring-teal-500 dark:ring-[#58a6ff] ring-offset-1 ring-offset-white dark:ring-offset-[#0d1117] z-10' 
+                            : 'hover:ring-1 hover:ring-slate-400 dark:hover:ring-[#8b949e]'
                         }`}
                       >
                         {/* Highlight marker (distinct star/pin dot for important exams/deadlines) */}
                         {act.hasHighlighted && (
                           <span 
-                            className="absolute -top-[1.5px] -right-[1.5px] w-[5px] h-[5px] bg-[#f0883e] rounded-full ring-1 ring-[#0d1117] animate-pulse"
+                            className="absolute -top-[1.5px] -right-[1.5px] w-[5px] h-[5px] bg-amber-500 rounded-full ring-1 ring-white dark:ring-[#0d1117] animate-pulse"
                             title="Important Event / Highlighted Milestone"
                           />
                         )}
@@ -258,10 +259,10 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
       </div>
 
       {/* Bottom Footer: Legend & Info */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-[#30363d] text-xs text-[#8b949e]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-slate-200 dark:border-[#30363d] text-xs text-slate-600 dark:text-[#8b949e]">
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#f0883e] inline-block animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block animate-pulse"></span>
             <span>Starred / Highlighted milestone</span>
           </span>
         </div>
@@ -275,7 +276,7 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
               style={{
                 backgroundColor: getHeatmapCellColor(lvl, settings.heatmapTheme, isLight),
               }}
-              className="w-[11px] h-[11px] rounded-[2px] border border-[#30363d]/50"
+              className="w-[11px] h-[11px] rounded-[2px] border border-slate-300 dark:border-[#30363d]/50"
               title={`Level ${lvl}`}
             />
           ))}
@@ -286,23 +287,23 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
       {/* Floating Tooltip */}
       {hoveredDay && (
         <div
-          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg shadow-xl text-xs text-[#c9d1d9] whitespace-nowrap animate-in fade-in duration-100"
+          className="fixed z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full px-3 py-2 bg-slate-900 text-slate-100 border border-slate-700 rounded-lg shadow-xl text-xs whitespace-nowrap animate-in fade-in duration-100"
           style={{
             left: hoveredDay.x,
             top: hoveredDay.y,
           }}
         >
-          <div className="font-semibold text-[#f0f6fc]">
+          <div className="font-semibold text-slate-100">
             {format(fromDateString(hoveredDay.activity.date), 'EEEE, MMM d, yyyy')}
           </div>
           
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-[#8b949e]">
+            <span className="text-slate-300">
               {hoveredDay.activity.totalScheduled === 0 ? (
                 'No tasks scheduled'
               ) : (
                 <>
-                  <strong className="text-[#f0f6fc]">
+                  <strong className="text-white">
                     {hoveredDay.activity.totalCompleted}
                   </strong>{' '}
                   of {hoveredDay.activity.totalScheduled} tasks completed ({hoveredDay.activity.completionPercentage}%)
@@ -310,25 +311,25 @@ export const HeatmapGraph: React.FC<HeatmapGraphProps> = ({
               )}
             </span>
             {hoveredDay.activity.totalSkipped > 0 && (
-              <span className="text-[#8b949e] italic">
+              <span className="text-slate-400 italic">
                 ({hoveredDay.activity.totalSkipped} skipped)
               </span>
             )}
           </div>
 
           {hoveredDay.activity.hasHighlighted && (
-            <div className="flex items-center gap-1 text-[#e3b341] mt-1 font-medium text-[11px]">
-              <Star className="w-3 h-3 fill-[#e3b341]" /> Contains important deadline or exam
+            <div className="flex items-center gap-1 text-amber-400 mt-1 font-medium text-[11px]">
+              <Star className="w-3 h-3 fill-amber-400" /> Contains important deadline or exam
             </div>
           )}
 
           {hoveredDay.activity.isCollegeHoliday && (
-            <div className="text-[#58a6ff] mt-0.5 text-[11px]">
-              🎓 College Holiday
+            <div className="text-teal-400 mt-0.5 text-[11px]">
+              🎓 Timetable Holiday
             </div>
           )}
 
-          <div className="text-[10px] text-[#6e7681] mt-1">
+          <div className="text-[10px] text-slate-400 mt-1">
             Click to view and edit details
           </div>
         </div>

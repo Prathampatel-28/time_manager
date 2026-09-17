@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { 
   isTaskScheduledForDate, 
+  isTaskActionableForDate,
   resolveTaskOccurrence, 
   computeDayActivity, 
   resolveCollegeScheduleForDate 
@@ -75,6 +76,65 @@ describe('Recurrence Engine', () => {
     expect(isTaskScheduledForDate(boundedTask, '2026-09-10')).toBe(true);
     expect(isTaskScheduledForDate(boundedTask, '2026-09-11')).toBe(false);
   });
+
+  it('should accurately evaluate specific month dates (e.g. 5, 15, 24)', () => {
+    const customDatesTask: Task = {
+      ...baseTask,
+      id: 'custom-dates-task',
+      recurrence: {
+        type: 'monthly_dates',
+        daysOfMonth: [5, 15, 24],
+        startDate: '2026-09-01',
+      },
+    };
+
+    expect(isTaskScheduledForDate(customDatesTask, '2026-09-05')).toBe(true);
+    expect(isTaskScheduledForDate(customDatesTask, '2026-09-15')).toBe(true);
+    expect(isTaskScheduledForDate(customDatesTask, '2026-09-24')).toBe(true);
+    expect(isTaskScheduledForDate(customDatesTask, '2026-09-10')).toBe(false);
+  });
+
+  it('should shift dates exceeding month length to the last day of shorter months', () => {
+    const endOfMonthTask: Task = {
+      ...baseTask,
+      id: 'end-of-month-task',
+      recurrence: {
+        type: 'monthly_dates',
+        daysOfMonth: [30, 31],
+        startDate: '2026-01-01',
+      },
+    };
+
+    // February 2026 (28 days): 28th should trigger for day 30 and 31
+    expect(isTaskScheduledForDate(endOfMonthTask, '2026-02-28')).toBe(true);
+    expect(isTaskScheduledForDate(endOfMonthTask, '2026-02-27')).toBe(false);
+
+    // April 2026 (30 days): 30th triggers for day 30 (exact) and day 31 (clamped)
+    expect(isTaskScheduledForDate(endOfMonthTask, '2026-04-30')).toBe(true);
+    expect(isTaskScheduledForDate(endOfMonthTask, '2026-04-29')).toBe(false);
+  });
+
+  it('should enforce time-based actionability correctly', () => {
+    const timedTask: Task = {
+      ...baseTask,
+      startTime: '14:30',
+    };
+
+    // Simulated "now" at 12:00 PM on 2026-09-15
+    const at12pm = new Date(2026, 8, 15, 12, 0);
+    // Simulated "now" at 15:00 PM on 2026-09-15
+    const at3pm = new Date(2026, 8, 15, 15, 0);
+
+    // On 2026-09-15 before 14:30 -> false
+    expect(isTaskActionableForDate(timedTask, '2026-09-15', at12pm)).toBe(false);
+    // On 2026-09-15 after 14:30 -> true
+    expect(isTaskActionableForDate(timedTask, '2026-09-15', at3pm)).toBe(true);
+
+    // Past date -> always true
+    expect(isTaskActionableForDate(timedTask, '2026-09-14', at12pm)).toBe(true);
+    // Future date -> always false
+    expect(isTaskActionableForDate(timedTask, '2026-09-16', at12pm)).toBe(false);
+  });
 });
 
 describe('Single Occurrence Removal and Skipping', () => {
@@ -112,7 +172,7 @@ describe('Single Occurrence Removal and Skipping', () => {
     expect(resolvedOtherDay.isScheduled).toBe(true);
   });
 
-  it('should not penalize streak or completion percentage when an occurrence is skipped', () => {
+  it('should include skipped occurrence in totalScheduled for accurate completion rate', () => {
     const occurrencesMap = new Map<string, Occurrence>();
     occurrencesMap.set('task-read_2026-09-15', {
       id: 'task-read_2026-09-15',
@@ -124,13 +184,14 @@ describe('Single Occurrence Removal and Skipping', () => {
 
     const activity = computeDayActivity('2026-09-15', [task], occurrencesMap);
 
-    // Skipped tasks are excluded from totalScheduled so denominator is 0
-    expect(activity.totalScheduled).toBe(0);
+    // Skipped tasks count in totalScheduled so completion is 0/1 (0%)
+    expect(activity.totalScheduled).toBe(1);
     expect(activity.totalSkipped).toBe(1);
+    expect(activity.totalCompleted).toBe(0);
     expect(activity.completionPercentage).toBe(0);
   });
 
-  it('should compute 100% completion when all non-skipped tasks are done', () => {
+  it('should compute 50% completion when 1 task is done and 1 task is skipped', () => {
     const task2: Task = {
       id: 'task-code',
       title: 'Coding',
@@ -160,13 +221,13 @@ describe('Single Occurrence Removal and Skipping', () => {
 
     const activity = computeDayActivity('2026-09-15', [task, task2], occurrencesMap);
 
-    // Total scheduled is 1 (only task2 counts, task is skipped)
-    expect(activity.totalScheduled).toBe(1);
+    // Total scheduled is 2 (1 done, 1 skipped)
+    expect(activity.totalScheduled).toBe(2);
     expect(activity.totalCompleted).toBe(1);
     expect(activity.totalSkipped).toBe(1);
-    // Completion percentage is 100% and level is 4!
-    expect(activity.completionPercentage).toBe(100);
-    expect(activity.level).toBe(4);
+    // Completion percentage is 50% and level is 2
+    expect(activity.completionPercentage).toBe(50);
+    expect(activity.level).toBe(2);
   });
 });
 

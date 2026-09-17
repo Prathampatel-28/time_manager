@@ -49,7 +49,7 @@ const MainContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg-main)] text-[var(--text-primary)]">
+    <div className="min-h-screen flex flex-col bg-transparent text-[var(--text-primary)]">
       {/* Top Navbar */}
       <Navbar onOpenNewTaskModal={() => handleOpenTaskModal()} />
 

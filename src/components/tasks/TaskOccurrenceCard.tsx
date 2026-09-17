@@ -7,8 +7,11 @@ import {
   Trash2, 
   RotateCcw, 
   Star, 
-  FileText 
+  FileText,
+  Clock,
+  Bell
 } from 'lucide-react';
+import { isTaskActionableForDate } from '../../services/recurrence';
 
 interface TaskOccurrenceCardProps {
   task: Task;
@@ -21,6 +24,22 @@ interface TaskOccurrenceCardProps {
   onRemove: (taskId: string, dateStr: string) => void;
   onSaveOccurrence: (occurrence: Occurrence) => void;
   compact?: boolean;
+}
+
+/**
+ * Format 24h "HH:MM" into 12h format e.g. "09:30" -> "9:30 AM", "14:15" -> "2:15 PM"
+ */
+function formatTime12h(timeStr?: string): string | null {
+  if (!timeStr) return null;
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return timeStr;
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+  if (isNaN(hours)) return timeStr;
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  if (hours === 0) hours = 12;
+  return `${hours}:${minutes} ${ampm}`;
 }
 
 export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
@@ -40,6 +59,12 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
 
   const isDone = status === 'done';
   const isSkipped = status === 'skipped';
+
+  const startTime12h = formatTime12h(task.startTime);
+  const endTime12h = formatTime12h(task.endTime);
+
+  const isActionable = isTaskActionableForDate(task, dateStr);
+  const canToggle = isDone || isSkipped || isActionable;
 
   const handleSaveNote = async () => {
     await onSaveOccurrence({
@@ -75,41 +100,50 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
   if (compact) {
     return (
       <div
-        className={`p-3 rounded-lg border flex items-center justify-between gap-3 transition-all ${
+        className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-all ${
           isDone
-            ? 'bg-[#1f883d]/10 border-[#238636]/40'
+            ? 'bg-emerald-500/10 border-emerald-500/30'
             : isSkipped
-            ? 'bg-[#21262d]/40 border-[#30363d] opacity-75'
-            : 'bg-[#0d1117] border-[#30363d] hover:border-[#58a6ff]/40'
+            ? 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-75'
+            : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 hover:border-teal-500/40'
         }`}
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <button
             type="button"
-            onClick={() => onToggleDone(task.id, dateStr)}
-            className="transition-transform active:scale-90"
+            disabled={!canToggle}
+            onClick={() => canToggle && onToggleDone(task.id, dateStr)}
+            title={!canToggle ? `Available at ${startTime12h || task.startTime}` : isDone ? 'Mark as pending' : 'Mark as done'}
+            className={`transition-transform active:scale-90 ${!canToggle ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             {isDone ? (
-              <CheckCircle2 className="w-5 h-5 text-[#3fb950] fill-[#238636]/30" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 dark:text-emerald-400 fill-emerald-500/20" />
             ) : isSkipped ? (
-              <Slash className="w-5 h-5 text-[#8b949e]" />
+              <Slash className="w-5 h-5 text-slate-400 dark:text-slate-500" />
             ) : (
-              <Circle className="w-5 h-5 text-[#8b949e] hover:text-[#58a6ff]" />
+              <Circle className={`w-5 h-5 ${!canToggle ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 hover:text-teal-500'}`} />
             )}
           </button>
 
           <div className="min-w-0 flex-1">
-            <span
-              className={`text-xs font-semibold block truncate ${
-                isDone
-                  ? 'line-through text-[#8b949e]'
-                  : isSkipped
-                  ? 'line-through text-[#6e7681]'
-                  : 'text-[#f0f6fc]'
-              }`}
-            >
-              {occurrence?.overrideTitle || task.title}
-            </span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-xs font-semibold truncate ${
+                  isDone
+                    ? 'line-through text-slate-400 dark:text-slate-500'
+                    : isSkipped
+                    ? 'line-through text-slate-400 dark:text-slate-500'
+                    : 'text-slate-900 dark:text-slate-100'
+                }`}
+              >
+                {occurrence?.overrideTitle || task.title}
+              </span>
+              {startTime12h && (
+                <span className="text-[10px] font-mono text-teal-700 dark:text-teal-400 bg-teal-500/10 px-1.5 py-0.2 rounded border border-teal-500/30 shrink-0">
+                  {startTime12h}
+                </span>
+              )}
+            </div>
             <span
               className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full inline-block mt-0.5"
               style={{
@@ -130,7 +164,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
                 const note = window.prompt('Reason for skipping today (optional):', '');
                 onSkip(task.id, dateStr, note || undefined);
               }}
-              className="text-[11px] text-[#8b949e] hover:text-[#e3b341] transition-colors"
+              className="text-[11px] text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
               title="Skip today without losing streak"
             >
               Skip Today
@@ -145,12 +179,12 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
     <div
       className={`p-4 rounded-xl border transition-all ${
         isDone
-          ? 'bg-[#1f883d]/10 border-[#238636]/40'
+          ? 'bg-emerald-500/10 border-emerald-500/30'
           : isSkipped
-          ? 'bg-[#21262d]/40 border-[#30363d] opacity-75'
+          ? 'bg-slate-100 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-80'
           : task.isHighlighted
-          ? 'bg-[#d29922]/10 border-[#d29922]/50'
-          : 'bg-[#0d1117] border-[#30363d] hover:border-[#58a6ff]/40'
+          ? 'bg-amber-500/10 border-amber-500/40 shadow-sm shadow-amber-500/10'
+          : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800/80 hover:border-teal-500/40 shadow-sm'
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -158,15 +192,17 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
         <div className="flex items-start gap-3 flex-1">
           <button
             type="button"
-            onClick={() => onToggleDone(task.id, dateStr)}
-            className="mt-0.5 transition-transform active:scale-90 shrink-0"
+            disabled={!canToggle}
+            onClick={() => canToggle && onToggleDone(task.id, dateStr)}
+            title={!canToggle ? `Available at ${startTime12h || task.startTime}` : isDone ? 'Mark as pending' : 'Mark as done'}
+            className={`mt-0.5 transition-transform active:scale-90 shrink-0 ${!canToggle ? 'opacity-40 cursor-not-allowed' : ''}`}
           >
             {isDone ? (
-              <CheckCircle2 className="w-5 h-5 text-[#3fb950] fill-[#238636]/30" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 dark:text-emerald-400 fill-emerald-500/20" />
             ) : isSkipped ? (
-              <Slash className="w-5 h-5 text-[#8b949e]" />
+              <Slash className="w-5 h-5 text-slate-400 dark:text-slate-500" />
             ) : (
-              <Circle className="w-5 h-5 text-[#8b949e] hover:text-[#58a6ff]" />
+              <Circle className={`w-5 h-5 ${!canToggle ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 hover:text-teal-500'}`} />
             )}
           </button>
 
@@ -175,18 +211,41 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
               <span
                 className={`text-sm font-bold ${
                   isDone
-                    ? 'line-through text-[#8b949e]'
+                    ? 'line-through text-slate-400 dark:text-slate-500'
                     : isSkipped
-                    ? 'line-through text-[#6e7681]'
-                    : 'text-[#f0f6fc]'
+                    ? 'line-through text-slate-400 dark:text-slate-500'
+                    : 'text-slate-900 dark:text-slate-100'
                 }`}
               >
                 {occurrence?.overrideTitle || task.title}
               </span>
 
+              {/* Time Badge if specific time set */}
+              {startTime12h && (
+                <span className="flex items-center gap-1 text-[11px] font-mono font-bold text-teal-700 dark:text-teal-300 bg-teal-500/15 px-2 py-0.5 rounded-md border border-teal-500/30">
+                  <Clock className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                  {startTime12h} {endTime12h ? `- ${endTime12h}` : ''}
+                </span>
+              )}
+
+              {/* Reminder Offset Badge if specific time */}
+              {task.startTime && task.reminderOffsetMinutes !== undefined && (
+                <span className="flex items-center gap-1 text-[10px] text-amber-700 dark:text-amber-300 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/30">
+                  <Bell className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                  {task.reminderOffsetMinutes === 0 ? 'At time' : `${task.reminderOffsetMinutes}m before`}
+                </span>
+              )}
+
+              {!canToggle && !isDone && !isSkipped && (
+                <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+                  <Clock className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
+                  Available at {startTime12h || task.startTime}
+                </span>
+              )}
+
               {task.isHighlighted && (
-                <span className="flex items-center gap-1 text-[10px] font-bold text-[#e3b341] bg-[#d29922]/20 px-2 py-0.5 rounded border border-[#d29922]/40">
-                  <Star className="w-2.5 h-2.5 fill-[#e3b341]" /> Important
+                <span className="flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40">
+                  <Star className="w-2.5 h-2.5 fill-amber-500 dark:fill-amber-400" /> Important
                 </span>
               )}
 
@@ -202,26 +261,26 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
               </span>
 
               {isSkipped && (
-                <span className="text-[10px] font-medium text-[#8b949e] bg-[#21262d] px-2 py-0.5 rounded border border-[#30363d]">
+                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700">
                   Skipped (Preserves Streak)
                 </span>
               )}
             </div>
 
             {task.description && (
-              <p className="text-xs text-[#8b949e] line-clamp-2">{task.description}</p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{task.description}</p>
             )}
 
             {occurrence?.notes && (
-              <div className="mt-2 text-xs bg-[#21262d]/60 border border-[#30363d] rounded p-2 text-[#8b949e] flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-[#58a6ff] shrink-0" />
+              <div className="mt-2 text-xs bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded p-2 text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
                 <span>{occurrence.notes}</span>
               </div>
             )}
 
             {/* Subtasks checklist */}
             {task.subtasks && task.subtasks.length > 0 && (
-              <div className="mt-2.5 pt-2 border-t border-[#30363d]/60 space-y-1.5">
+              <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800/80 space-y-1.5">
                 {task.subtasks.map(sub => {
                   const doneSubs = occurrence?.completedSubtaskIds || [];
                   const isSubDone = doneSubs.includes(sub.id);
@@ -229,16 +288,16 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
                   return (
                     <label
                       key={sub.id}
-                      className="flex items-center gap-2 text-xs text-[#8b949e] cursor-pointer hover:text-[#c9d1d9]"
+                      className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-900 dark:hover:text-slate-200"
                       onClick={e => handleSubtaskToggle(sub.id, e)}
                     >
                       <input
                         type="checkbox"
                         checked={isSubDone}
                         readOnly
-                        className="rounded border-[#30363d] bg-[#0d1117] text-[#238636] focus:ring-0"
+                        className="rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-teal-600 focus:ring-0"
                       />
-                      <span className={isSubDone ? 'line-through text-[#6e7681]' : ''}>
+                      <span className={isSubDone ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
                         {sub.title}
                       </span>
                     </label>
@@ -259,7 +318,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
                 onSkip(task.id, dateStr, note || undefined);
               }}
               title="Skip this occurrence without breaking your streak"
-              className="p-1.5 text-[#8b949e] hover:text-[#e3b341] hover:bg-[#21262d] rounded transition-colors"
+              className="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
             >
               <Slash className="w-4 h-4" />
             </button>
@@ -268,7 +327,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
               type="button"
               onClick={() => onReset(task.id, dateStr)}
               title="Restore task occurrence"
-              className="p-1.5 text-[#58a6ff] hover:bg-[#21262d] rounded transition-colors"
+              className="p-1.5 text-teal-600 dark:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
@@ -281,7 +340,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
               setNoteContent(occurrence?.notes || '');
             }}
             title="Add note for this date"
-            className="p-1.5 text-[#8b949e] hover:text-[#58a6ff] hover:bg-[#21262d] rounded transition-colors"
+            className="p-1.5 text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
           >
             <FileText className="w-4 h-4" />
           </button>
@@ -294,7 +353,7 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
               }
             }}
             title="Remove occurrence for this date only"
-            className="p-1.5 text-[#8b949e] hover:text-[#f85149] hover:bg-[#21262d] rounded transition-colors"
+            className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
           >
             <Trash2 className="w-4 h-4" />
           </button>
@@ -303,26 +362,26 @@ export const TaskOccurrenceCard: React.FC<TaskOccurrenceCardProps> = ({
 
       {/* Inline Note Editing */}
       {isEditingNote && (
-        <div className="mt-3 pt-3 border-t border-[#30363d] space-y-2">
+        <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2">
           <input
             type="text"
             value={noteContent}
             onChange={e => setNoteContent(e.target.value)}
             placeholder="Add specific note for this date..."
-            className="w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-1.5 text-xs text-[#c9d1d9] focus:outline-none focus:border-[#58a6ff]"
+            className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-3 py-1.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-teal-500"
           />
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={() => setIsEditingNote(false)}
-              className="px-2.5 py-1 text-xs text-[#8b949e] hover:text-[#c9d1d9]"
+              className="px-2.5 py-1 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSaveNote}
-              className="px-3 py-1 text-xs bg-[#238636] hover:bg-[#2ea043] text-white rounded font-medium"
+              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded font-medium shadow-sm"
             >
               Save Note
             </button>

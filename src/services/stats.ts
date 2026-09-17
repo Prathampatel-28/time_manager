@@ -52,7 +52,7 @@ export function calculateStreakStats(
   };
 
   const isNeutral = (day: DayActivity): boolean => {
-    return day.totalScheduled === 0;
+    return day.totalScheduled === 0 || (day.totalCompleted === 0 && day.totalSkipped === day.totalScheduled);
   };
 
   // Find longest streak across entire history
