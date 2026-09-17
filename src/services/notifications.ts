@@ -66,26 +66,51 @@ export async function dispatchNotification(
   };
 
   try {
-    // 1. Try ServiceWorker Registration (Required on Android / Mobile PWA)
+    // 1. Try ServiceWorker Registration (Required for Android & Mobile PWA)
     if ('serviceWorker' in navigator) {
-      const reg = swRegistration || (await navigator.serviceWorker.ready.catch(() => null));
-      if (reg && 'showNotification' in reg) {
-        await reg.showNotification(title, notificationOptions);
-        return true;
+      let reg: ServiceWorkerRegistration | null = swRegistration;
+      if (!reg) {
+        reg = await navigator.serviceWorker.ready.catch(() => null);
+      }
+      if (reg) {
+        if ('showNotification' in reg) {
+          try {
+            await reg.showNotification(title, notificationOptions);
+            return true;
+          } catch (swErr) {
+            console.warn('reg.showNotification failed, trying postMessage fallback:', swErr);
+          }
+        }
+        if (reg.active) {
+          reg.active.postMessage({
+            type: 'SHOW_NOTIFICATION',
+            payload: { title, options: notificationOptions },
+          });
+          return true;
+        }
       }
     }
-    // 2. Standalone Desktop Browser Fallback
-    new Notification(title, notificationOptions);
-    return true;
-  } catch (err) {
-    console.warn('Primary notification dispatch failed, trying fallback:', err);
-    try {
+
+    // 2. Standalone Desktop Browser Fallback (new Notification construct)
+    if (typeof Notification === 'function') {
       new Notification(title, notificationOptions);
       return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn('Primary notification dispatch failed, trying SW message fallback:', err);
+    try {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SHOW_NOTIFICATION',
+          payload: { title, options: notificationOptions },
+        });
+        return true;
+      }
     } catch (e) {
       console.error('All notification attempts failed:', e);
-      return false;
     }
+    return false;
   }
 }
 

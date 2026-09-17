@@ -78,4 +78,26 @@ describe('Streak and Progress Analytics', () => {
     expect(stats.currentStreak).toBe(3);
     expect(stats.longestStreak).toBe(3);
   });
+
+  it('should calculate a 2-day streak when tasks are completed for yesterday and today', () => {
+    const activities: DayActivity[] = [
+      mockActivity('2026-09-16', 1, 1), // yesterday
+      mockActivity('2026-09-17', 1, 1), // today
+    ];
+
+    const stats = calculateStreakStats(activities, '2026-09-17', 'all_completed');
+    expect(stats.currentStreak).toBe(2);
+    expect(stats.longestStreak).toBe(2);
+  });
+
+  it('should qualify days where remaining non-skipped tasks are completed', () => {
+    const activities: DayActivity[] = [
+      mockActivity('2026-09-16', 2, 1, 1), // yesterday: 2 scheduled, 1 completed, 1 skipped
+      mockActivity('2026-09-17', 2, 1, 1), // today: 2 scheduled, 1 completed, 1 skipped
+    ];
+
+    const stats = calculateStreakStats(activities, '2026-09-17', 'all_completed');
+    expect(stats.currentStreak).toBe(2);
+    expect(stats.longestStreak).toBe(2);
+  });
 });

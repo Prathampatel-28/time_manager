@@ -221,32 +221,36 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewTaskModal }) => {
         </div>
 
         {/* Right Actions: PWA Install, Streak, New Task, Theme, Backup & Export, Settings */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Install Desktop App Button */}
           {deferredPrompt && !isAppInstalled && (
             <button
               type="button"
               onClick={handleInstallApp}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-teal-900/20 transition-all active:scale-95 shrink-0"
-              title="Install Chronos Tracker as Standalone Desktop/Mobile App"
+              className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-xs font-bold rounded-xl shadow-md shadow-teal-900/20 transition-all active:scale-95 shrink-0"
+              title="Install Chronos Tracker as Standalone App"
             >
               <DownloadCloud className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">Install App</span>
+              <span className="hidden xl:inline">Install App</span>
             </button>
           )}
 
           {/* Active Streak Badge */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0">
+          <div 
+            className="flex items-center gap-1 px-2 py-1.5 bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs shrink-0"
+            title={`Active Streak: ${streakStats.currentStreak} day(s)`}
+          >
             <Flame className="w-4 h-4 text-amber-500 fill-amber-500 animate-pulse" />
             <span className="font-bold text-slate-900 dark:text-slate-100">{streakStats.currentStreak}</span>
-            <span className="text-slate-500 dark:text-slate-400 text-[11px] hidden lg:inline">streak</span>
+            <span className="text-slate-500 dark:text-slate-400 text-[11px] hidden xl:inline">streak</span>
           </div>
 
           {/* + New Task Button */}
           <button
             type="button"
             onClick={onOpenNewTaskModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95 shrink-0"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-900/20 transition-all active:scale-95 shrink-0"
+            title="Create New Scheduled Task"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Task</span>
@@ -281,11 +285,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenNewTaskModal }) => {
               setActiveTab('data');
               setIsSettingsOpen(true);
             }}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700/60 shadow-sm transition-all shrink-0"
+            className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl border border-slate-300 dark:border-slate-700/60 shadow-sm transition-all shrink-0"
             title="Backup & Export (JSON Data Backup & Restore)"
           >
             <Download className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-            <span className="hidden md:inline">Backup & Export</span>
+            <span className="hidden xl:inline">Backup & Export</span>
           </button>
 
           {/* Settings / Config Modal Button */}

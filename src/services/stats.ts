@@ -43,16 +43,18 @@ export function calculateStreakStats(
 
   // Determine qualification per day
   const isQualifying = (day: DayActivity): boolean => {
-    if (day.totalScheduled === 0) return false;
+    const effectiveScheduled = Math.max(0, day.totalScheduled - day.totalSkipped);
+    if (effectiveScheduled === 0) return false;
     if (mode === 'all_completed') {
-      return day.totalCompleted >= day.totalScheduled;
+      return day.totalCompleted >= effectiveScheduled;
     } else {
       return day.totalCompleted > 0;
     }
   };
 
   const isNeutral = (day: DayActivity): boolean => {
-    return day.totalScheduled === 0 || (day.totalCompleted === 0 && day.totalSkipped === day.totalScheduled);
+    const effectiveScheduled = Math.max(0, day.totalScheduled - day.totalSkipped);
+    return day.totalScheduled === 0 || effectiveScheduled === 0;
   };
 
   // Find longest streak across entire history
